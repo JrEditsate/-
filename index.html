@@ -1,0 +1,1951 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEON DUEL 2P</title>
+
+<style>
+*{
+    box-sizing:border-box;
+    user-select:none;
+}
+
+html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#050816;
+    font-family:Tahoma,Arial,sans-serif;
+    color:white;
+}
+
+body{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+#gameBox{
+    width:min(1200px,96vw);
+    height:min(760px,94vh);
+    position:relative;
+    overflow:hidden;
+    border-radius:22px;
+    border:2px solid #273454;
+    background:#070b18;
+    box-shadow:0 0 50px #000;
+}
+
+canvas{
+    width:100%;
+    height:100%;
+    display:block;
+}
+
+.screen{
+    position:absolute;
+    inset:0;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:rgba(3,6,18,.95);
+    z-index:20;
+}
+
+.panel{
+    width:min(650px,90%);
+    padding:35px;
+    text-align:center;
+    border-radius:25px;
+    background:linear-gradient(145deg,#10182b,#080d1b);
+    border:1px solid #33446b;
+    box-shadow:0 20px 80px #000;
+}
+
+h1{
+    margin:0 0 12px;
+    font-size:48px;
+    letter-spacing:3px;
+}
+
+.subtitle{
+    color:#aab8d0;
+    line-height:2;
+    margin-bottom:25px;
+}
+
+button{
+    border:0;
+    border-radius:14px;
+    padding:15px 35px;
+    background:linear-gradient(135deg,#38d9ff,#5578ff);
+    color:white;
+    font:bold 18px Tahoma;
+    cursor:pointer;
+}
+
+button:hover{
+    filter:brightness(1.12);
+    transform:translateY(-2px);
+}
+
+.controls{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin-top:22px;
+}
+
+.control{
+    padding:14px;
+    border-radius:12px;
+    background:#ffffff08;
+    border:1px solid #ffffff12;
+    color:#b9c5df;
+    line-height:1.9;
+    font-size:13px;
+}
+
+.hidden{
+    display:none!important;
+}
+
+#message{
+    position:absolute;
+    top:85px;
+    left:50%;
+    transform:translateX(-50%);
+    z-index:10;
+    padding:10px 20px;
+    border-radius:12px;
+    background:#07111ddd;
+    border:1px solid #ffffff20;
+    font-weight:bold;
+    opacity:0;
+    transition:.2s;
+    pointer-events:none;
+}
+
+#message.show{
+    opacity:1;
+}
+
+@media(max-width:700px){
+    h1{
+        font-size:32px;
+    }
+
+    .controls{
+        grid-template-columns:1fr;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div id="gameBox">
+
+<canvas id="game" width="1200" height="700"></canvas>
+
+<div id="message"></div>
+
+<div id="menu" class="screen">
+
+<div class="panel">
+
+<h1>NEON DUEL</h1>
+
+<div class="subtitle">
+
+🎮 بازی دونفره آرکید<br>
+
+هر بازی تا <b>۱۰ امتیاز</b> ادامه دارد.<br>
+
+⚡ بعد از هر <b>۵ برخورد</b> سرعت توپ بیشتر می‌شود.<br>
+
+🎁 آیتم‌های شانسی وسط زمین ظاهر می‌شوند.
+
+</div>
+
+<button id="startButton">
+شروع بازی
+</button>
+
+<div class="controls">
+
+<div class="control">
+
+<b style="color:#38d9ff">
+🔵 بازیکن ۱
+</b>
+
+<br>
+
+🎮 آنالوگ چپ دسته PS5<br>
+⬆️ بالا / ⬇️ پایین<br>
+⌨️ W / S
+
+</div>
+
+<div class="control">
+
+<b style="color:#ff5b8a">
+🔴 بازیکن ۲
+</b>
+
+<br>
+
+🎮 آنالوگ چپ دسته PS5<br>
+⬆️ بالا / ⬇️ پایین<br>
+⌨️ ↑ / ↓
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+"use strict";
+
+/* =========================
+   CANVAS
+========================= */
+
+const canvas=document.getElementById("game");
+const ctx=canvas.getContext("2d");
+
+const W=canvas.width;
+const H=canvas.height;
+
+
+/* =========================
+   UI
+========================= */
+
+const menu=document.getElementById("menu");
+const startButton=document.getElementById("startButton");
+const message=document.getElementById("message");
+
+
+/* =========================
+   KEYBOARD
+========================= */
+
+const keys={};
+
+window.addEventListener("keydown",function(e){
+
+    keys[e.code]=true;
+
+    if(
+        e.code==="ArrowUp" ||
+        e.code==="ArrowDown"
+    ){
+        e.preventDefault();
+    }
+
+});
+
+window.addEventListener("keyup",function(e){
+
+    keys[e.code]=false;
+
+});
+
+
+/* =========================
+   GAME STATE
+========================= */
+
+let running=false;
+let lastTime=0;
+
+const MAX_SCORE=10;
+
+let totalHits=0;
+
+let particles=[];
+
+let screenShake=0;
+
+
+/* =========================
+   GAMEPADS
+========================= */
+
+let gamepads=[];
+
+function updateGamepads(){
+
+    if(!navigator.getGamepads){
+
+        gamepads=[];
+
+        return;
+    }
+
+    gamepads=Array.from(
+        navigator.getGamepads()
+    );
+
+}
+
+window.addEventListener(
+    "gamepadconnected",
+    function(e){
+
+        console.log(
+            "Gamepad connected:",
+            e.gamepad.id
+        );
+
+    }
+);
+
+window.addEventListener(
+    "gamepaddisconnected",
+    function(e){
+
+        console.log(
+            "Gamepad disconnected:",
+            e.gamepad.id
+        );
+
+    }
+);
+
+
+/* =========================
+   PLAYERS
+========================= */
+
+const p1={
+
+    x:55,
+
+    y:H/2-65,
+
+    w:24,
+
+    h:130,
+
+    color:"#38d9ff",
+
+    score:0,
+
+    speed:560
+
+};
+
+const p2={
+
+    x:W-79,
+
+    y:H/2-65,
+
+    w:24,
+
+    h:130,
+
+    color:"#ff5b8a",
+
+    score:0,
+
+    speed:560
+
+};
+
+
+/* =========================
+   BALL
+========================= */
+
+const ball={
+
+    x:W/2,
+
+    y:H/2,
+
+    r:13,
+
+    vx:0,
+
+    vy:0,
+
+    speed:500,
+
+    maxSpeed:1300,
+
+    fire:false,
+
+    fireTimer:0
+
+};
+
+
+/* =========================
+   RANDOM ITEMS
+========================= */
+
+let item=null;
+
+let itemTimer=4;
+
+const ITEM_TYPES=[
+
+    {
+        type:"fire",
+        color:"#ff6a00",
+        icon:"🔥",
+        name:"FIRE"
+    },
+
+    {
+        type:"turbo",
+        color:"#ffe600",
+        icon:"⚡",
+        name:"TURBO"
+    },
+
+    {
+        type:"slow",
+        color:"#53d8ff",
+        icon:"❄️",
+        name:"SLOW"
+    }
+
+];
+
+
+/* =========================
+   RESET BALL
+========================= */
+
+function resetBall(direction){
+
+    ball.x=W/2;
+
+    ball.y=H/2;
+
+    ball.speed=500;
+
+    ball.fire=false;
+
+    ball.fireTimer=0;
+
+    const angle=
+        Math.random()*1.1-
+        0.55;
+
+    ball.vx=
+        Math.cos(angle)*
+        ball.speed*
+        direction;
+
+    ball.vy=
+        Math.sin(angle)*
+        ball.speed;
+
+}
+
+
+/* =========================
+   RESET GAME
+========================= */
+
+function resetGame(){
+
+    p1.score=0;
+
+    p2.score=0;
+
+    p1.y=H/2-p1.h/2;
+
+    p2.y=H/2-p2.h/2;
+
+    totalHits=0;
+
+    particles=[];
+
+    item=null;
+
+    itemTimer=4;
+
+    screenShake=0;
+
+    resetBall(
+        Math.random()<.5
+        ?1
+        :-1
+    );
+
+}
+
+
+/* =========================
+   MESSAGE
+========================= */
+
+let messageTimer=0;
+
+function showMessage(text){
+
+    message.textContent=text;
+
+    message.classList.add("show");
+
+    messageTimer=1.3;
+
+}
+
+
+/* =========================
+   PARTICLES
+========================= */
+
+function createParticles(
+    x,
+    y,
+    color,
+    count=20
+){
+
+    for(
+        let i=0;
+        i<count;
+        i++
+    ){
+
+        const angle=
+            Math.random()*
+            Math.PI*2;
+
+        const speed=
+            80+
+            Math.random()*420;
+
+        particles.push({
+
+            x:x,
+
+            y:y,
+
+            vx:
+                Math.cos(angle)*
+                speed,
+
+            vy:
+                Math.sin(angle)*
+                speed,
+
+            life:
+                .3+
+                Math.random()*.6,
+
+            size:
+                2+
+                Math.random()*5,
+
+            color:color
+
+        });
+
+    }
+
+}
+
+
+/* =========================
+   PLAYER CONTROL
+========================= */
+
+function getControllerY(index){
+
+    updateGamepads();
+
+    const pad=
+        gamepads[index];
+
+    if(!pad){
+        return 0;
+    }
+
+    /*
+       DualSense / PS5:
+
+       axes[0] = چپ و راست
+       axes[1] = بالا و پایین
+
+       فقط axes[1] استفاده می‌شود.
+    */
+
+    let y=pad.axes[1] || 0;
+
+    if(Math.abs(y)<0.12){
+
+        y=0;
+
+    }
+
+    return y;
+
+}
+
+
+function updatePlayers(dt){
+
+    /*
+       بازیکن ۱
+    */
+
+    let move1=
+        getControllerY(0);
+
+    if(move1===0){
+
+        if(keys["KeyW"]){
+
+            move1=-1;
+
+        }
+
+        else if(keys["KeyS"]){
+
+            move1=1;
+
+        }
+
+    }
+
+    /*
+       بازیکن ۲
+    */
+
+    let move2=
+        getControllerY(1);
+
+    if(move2===0){
+
+        if(keys["ArrowUp"]){
+
+            move2=-1;
+
+        }
+
+        else if(keys["ArrowDown"]){
+
+            move2=1;
+
+        }
+
+    }
+
+    p1.y+=
+        move1*
+        p1.speed*
+        dt;
+
+    p2.y+=
+        move2*
+        p2.speed*
+        dt;
+
+    /*
+       محدود کردن تخته‌ها
+    */
+
+    const top=55;
+
+    const bottom=H-55;
+
+    p1.y=
+        Math.max(
+            top,
+            Math.min(
+                bottom-p1.h,
+                p1.y
+            )
+        );
+
+    p2.y=
+        Math.max(
+            top,
+            Math.min(
+                bottom-p2.h,
+                p2.y
+            )
+        );
+
+}
+
+
+/* =========================
+   RANDOM ITEM
+========================= */
+
+function spawnItem(){
+
+    if(item){
+        return;
+    }
+
+    const random=
+        ITEM_TYPES[
+            Math.floor(
+                Math.random()*
+                ITEM_TYPES.length
+            )
+        ];
+
+    item={
+
+        x:W/2,
+
+        y:
+            110+
+            Math.random()*
+            (H-220),
+
+        type:random.type,
+
+        color:random.color,
+
+        icon:random.icon,
+
+        name:random.name,
+
+        radius:27,
+
+        life:8,
+
+        rotation:0
+
+    };
+
+    showMessage(
+        "🎁 آیتم ظاهر شد!"
+    );
+
+}
+
+
+/* =========================
+   ITEM COLLISION
+========================= */
+
+function checkItemCollision(){
+
+    if(!item){
+        return;
+    }
+
+    const dx=
+        ball.x-item.x;
+
+    const dy=
+        ball.y-item.y;
+
+    const distance=
+        Math.sqrt(
+            dx*dx+
+            dy*dy
+        );
+
+    if(
+        distance<
+        ball.r+
+        item.radius
+    ){
+
+        activateItem(
+            item.type
+        );
+
+        createParticles(
+            item.x,
+            item.y,
+            item.color,
+            45
+        );
+
+        item=null;
+
+        itemTimer=
+            5+
+            Math.random()*4;
+
+    }
+
+}
+
+
+/* =========================
+   ITEM EFFECTS
+========================= */
+
+function activateItem(type){
+
+    if(type==="fire"){
+
+        ball.fire=true;
+
+        ball.fireTimer=6;
+
+        ball.speed=
+            Math.min(
+                ball.speed+350,
+                ball.maxSpeed
+            );
+
+        showMessage(
+            "🔥 FIRE BALL!"
+        );
+
+    }
+
+    if(type==="turbo"){
+
+        ball.speed=
+            Math.min(
+                ball.speed+500,
+                ball.maxSpeed
+            );
+
+        const length=
+            Math.hypot(
+                ball.vx,
+                ball.vy
+            );
+
+        ball.vx=
+            ball.vx/
+            length*
+            ball.speed;
+
+        ball.vy=
+            ball.vy/
+            length*
+            ball.speed;
+
+        showMessage(
+            "⚡ TURBO!"
+        );
+
+        screenShake=.25;
+
+    }
+
+    if(type==="slow"){
+
+        ball.speed=
+            Math.max(
+                300,
+                ball.speed-250
+            );
+
+        const length=
+            Math.hypot(
+                ball.vx,
+                ball.vy
+            );
+
+        ball.vx=
+            ball.vx/
+            length*
+            ball.speed;
+
+        ball.vy=
+            ball.vy/
+            length*
+            ball.speed;
+
+        showMessage(
+            "❄️ SLOW!"
+        );
+
+    }
+
+}
+
+
+/* =========================
+   PADDLE HIT
+========================= */
+
+function hitPaddle(player){
+
+    const center=
+        player.y+
+        player.h/2;
+
+    const difference=
+        ball.y-
+        center;
+
+    const normalized=
+        difference/
+        (player.h/2);
+
+    const angle=
+        normalized*
+        (Math.PI/3);
+
+    const direction=
+        player===p1
+        ?1
+        :-1;
+
+    /*
+       هر ۵ برخورد
+       سرعت بیشتر می‌شود
+    */
+
+    totalHits++;
+
+    if(
+        totalHits%5===0
+    ){
+
+        ball.speed=
+            Math.min(
+                ball.speed+100,
+                ball.maxSpeed
+            );
+
+        showMessage(
+            "⚡ سرعت توپ بیشتر شد!"
+        );
+
+        screenShake=.2;
+
+    }
+
+    /*
+       سرعت عادی برخورد
+    */
+
+    ball.speed=
+        Math.min(
+            ball.speed+18,
+            ball.maxSpeed
+        );
+
+    ball.vx=
+        Math.cos(angle)*
+        ball.speed*
+        direction;
+
+    ball.vy=
+        Math.sin(angle)*
+        ball.speed;
+
+    ball.x=
+        player===p1
+        ?player.x+
+         player.w+
+         ball.r
+        :player.x-
+         ball.r;
+
+    createParticles(
+        ball.x,
+        ball.y,
+        player.color,
+        18
+    );
+
+}
+
+
+/* =========================
+   SCORE
+========================= */
+
+function scorePoint(player){
+
+    player.score++;
+
+    createParticles(
+        W/2,
+        H/2,
+        player.color,
+        60
+    );
+
+    if(
+        player.score>=MAX_SCORE
+    ){
+
+        running=false;
+
+        setTimeout(
+            function(){
+
+                menu.classList.remove(
+                    "hidden"
+                );
+
+                startButton.textContent=
+                    "بازی دوباره";
+
+            },
+            900
+        );
+
+        showMessage(
+            player===p1
+            ?"🏆 بازیکن ۱ برنده شد!"
+            :"🏆 بازیکن ۲ برنده شد!"
+        );
+
+        return;
+
+    }
+
+    resetBall(
+        player===p1
+        ?-1
+        :1
+    );
+
+}
+
+
+/* =========================
+   UPDATE
+========================= */
+
+function update(dt){
+
+    if(!running){
+        return;
+    }
+
+    /*
+       کنترل بازیکن‌ها
+    */
+
+    updatePlayers(dt);
+
+
+    /*
+       تایمر آیتم
+    */
+
+    itemTimer-=dt;
+
+    if(
+        itemTimer<=0 &&
+        !item
+    ){
+
+        spawnItem();
+
+        itemTimer=
+            5+
+            Math.random()*5;
+
+    }
+
+    /*
+       آیتم
+    */
+
+    if(item){
+
+        item.life-=dt;
+
+        item.rotation+=dt*3;
+
+        if(item.life<=0){
+
+            item=null;
+
+            itemTimer=
+                5+
+                Math.random()*5;
+
+        }
+
+    }
+
+
+    /*
+       آتش توپ
+    */
+
+    if(ball.fire){
+
+        ball.fireTimer-=dt;
+
+        if(ball.fireTimer<=0){
+
+            ball.fire=false;
+
+        }
+
+    }
+
+
+    /*
+       حرکت توپ
+    */
+
+    ball.x+=
+        ball.vx*
+        dt;
+
+    ball.y+=
+        ball.vy*
+        dt;
+
+
+    /*
+       دیوار بالا
+    */
+
+    if(
+        ball.y-ball.r<
+        55
+    ){
+
+        ball.y=
+            55+
+            ball.r;
+
+        ball.vy=
+            Math.abs(
+                ball.vy
+            );
+
+        createParticles(
+            ball.x,
+            ball.y,
+            "#ffffff",
+            8
+        );
+
+    }
+
+
+    /*
+       دیوار پایین
+    */
+
+    if(
+        ball.y+ball.r>
+        H-55
+    ){
+
+        ball.y=
+            H-55-
+            ball.r;
+
+        ball.vy=
+            -Math.abs(
+                ball.vy
+            );
+
+        createParticles(
+            ball.x,
+            ball.y,
+            "#ffffff",
+            8
+        );
+
+    }
+
+
+    /*
+       برخورد با بازیکن ۱
+    */
+
+    if(
+
+        ball.vx<0 &&
+
+        ball.x-ball.r<
+        p1.x+p1.w &&
+
+        ball.x+ball.r>
+        p1.x &&
+
+        ball.y+ball.r>
+        p1.y &&
+
+        ball.y-ball.r<
+        p1.y+p1.h
+
+    ){
+
+        hitPaddle(p1);
+
+    }
+
+
+    /*
+       برخورد با بازیکن ۲
+    */
+
+    if(
+
+        ball.vx>0 &&
+
+        ball.x+ball.r>
+        p2.x &&
+
+        ball.x-ball.r<
+        p2.x+p2.w &&
+
+        ball.y+ball.r>
+        p2.y &&
+
+        ball.y-ball.r<
+        p2.y+p2.h
+
+    ){
+
+        hitPaddle(p2);
+
+    }
+
+
+    /*
+       آیتم
+    */
+
+    checkItemCollision();
+
+
+    /*
+       امتیاز بازیکن ۲
+    */
+
+    if(
+        ball.x<
+        -50
+    ){
+
+        scorePoint(p2);
+
+    }
+
+
+    /*
+       امتیاز بازیکن ۱
+    */
+
+    if(
+        ball.x>
+        W+50
+    ){
+
+        scorePoint(p1);
+
+    }
+
+
+    /*
+       ذرات
+    */
+
+    for(
+        let i=particles.length-1;
+        i>=0;
+        i--
+    ){
+
+        const p=
+            particles[i];
+
+        p.life-=dt;
+
+        p.x+=
+            p.vx*
+            dt;
+
+        p.y+=
+            p.vy*
+            dt;
+
+        p.vx*=.97;
+        p.vy*=.97;
+
+        if(
+            p.life<=0
+        ){
+
+            particles.splice(
+                i,
+                1
+            );
+
+        }
+
+    }
+
+
+    /*
+       پیام
+    */
+
+    if(messageTimer>0){
+
+        messageTimer-=dt;
+
+        if(
+            messageTimer<=0
+        ){
+
+            message.classList.remove(
+                "show"
+            );
+
+        }
+
+    }
+
+    /*
+       لرزش
+    */
+
+    screenShake=
+        Math.max(
+            0,
+            screenShake-dt
+        );
+
+}
+
+
+/* =========================
+   DRAW PADDLE
+========================= */
+
+function drawPaddle(player){
+
+    ctx.save();
+
+    ctx.shadowBlur=
+        25;
+
+    ctx.shadowColor=
+        player.color;
+
+    const gradient=
+        ctx.createLinearGradient(
+            player.x,
+            player.y,
+            player.x+
+            player.w,
+            player.y
+        );
+
+    gradient.addColorStop(
+        0,
+        player.color
+    );
+
+    gradient.addColorStop(
+        1,
+        "#ffffff"
+    );
+
+    ctx.fillStyle=
+        gradient;
+
+    ctx.beginPath();
+
+    ctx.roundRect(
+        player.x,
+        player.y,
+        player.w,
+        player.h,
+        12
+    );
+
+    ctx.fill();
+
+    ctx.restore();
+
+}
+
+
+/* =========================
+   DRAW ITEM
+========================= */
+
+function drawItem(){
+
+    if(!item){
+        return;
+    }
+
+    ctx.save();
+
+    ctx.translate(
+        item.x,
+        item.y
+    );
+
+    ctx.rotate(
+        item.rotation
+    );
+
+    /*
+       حلقه نور
+    */
+
+    ctx.shadowBlur=
+        30;
+
+    ctx.shadowColor=
+        item.color;
+
+    ctx.strokeStyle=
+        item.color;
+
+    ctx.lineWidth=4;
+
+    ctx.beginPath();
+
+    ctx.arc(
+        0,
+        0,
+        item.radius,
+        0,
+        Math.PI*2
+    );
+
+    ctx.stroke();
+
+    /*
+       داخل آیتم
+    */
+
+    ctx.fillStyle=
+        "#101828";
+
+    ctx.beginPath();
+
+    ctx.arc(
+        0,
+        0,
+        item.radius-5,
+        0,
+        Math.PI*2
+    );
+
+    ctx.fill();
+
+    /*
+       آیکون
+    */
+
+    ctx.rotate(
+        -item.rotation
+    );
+
+    ctx.font=
+        "26px Arial";
+
+    ctx.textAlign=
+        "center";
+
+    ctx.textBaseline=
+        "middle";
+
+    ctx.fillText(
+        item.icon,
+        0,
+        0
+    );
+
+    ctx.restore();
+
+}
+
+
+/* =========================
+   DRAW BALL
+========================= */
+
+function drawBall(){
+
+    /*
+       رد آتش
+    */
+
+    if(ball.fire){
+
+        for(
+            let i=0;
+            i<10;
+            i++
+        ){
+
+            ctx.globalAlpha=
+                (10-i)/35;
+
+            ctx.fillStyle=
+                i%2===0
+                ?"#ff4b00"
+                :"#ffe600";
+
+            ctx.beginPath();
+
+            ctx.arc(
+                ball.x-
+                ball.vx*.002*i,
+                ball.y-
+                ball.vy*.002*i,
+                ball.r+
+                i*.7,
+                0,
+                Math.PI*2
+            );
+
+            ctx.fill();
+
+        }
+
+        ctx.globalAlpha=1;
+
+    }
+
+
+    ctx.save();
+
+    ctx.shadowBlur=
+        ball.fire
+        ?45
+        :25;
+
+    ctx.shadowColor=
+        ball.fire
+        ?"orange"
+        :"white";
+
+    const gradient=
+        ctx.createRadialGradient(
+            ball.x-4,
+            ball.y-4,
+            2,
+            ball.x,
+            ball.y,
+            ball.r
+        );
+
+    if(ball.fire){
+
+        gradient.addColorStop(
+            0,
+            "#ffffff"
+        );
+
+        gradient.addColorStop(
+            .45,
+            "#ffe600"
+        );
+
+        gradient.addColorStop(
+            1,
+            "#ff4200"
+        );
+
+    }else{
+
+        gradient.addColorStop(
+            0,
+            "#ffffff"
+        );
+
+        gradient.addColorStop(
+            1,
+            "#8deaff"
+        );
+
+    }
+
+    ctx.fillStyle=
+        gradient;
+
+    ctx.beginPath();
+
+    ctx.arc(
+        ball.x,
+        ball.y,
+        ball.r,
+        0,
+        Math.PI*2
+    );
+
+    ctx.fill();
+
+    ctx.restore();
+
+}
+
+
+/* =========================
+   DRAW
+========================= */
+
+function draw(){
+
+    ctx.clearRect(
+        0,
+        0,
+        W,
+        H
+    );
+
+
+    /*
+       پس زمینه
+    */
+
+    const bg=
+        ctx.createRadialGradient(
+            W/2,
+            H/2,
+            50,
+            W/2,
+            H/2,
+            700
+        );
+
+    bg.addColorStop(
+        0,
+        "#101a35"
+    );
+
+    bg.addColorStop(
+        1,
+        "#03050c"
+    );
+
+    ctx.fillStyle=
+        bg;
+
+    ctx.fillRect(
+        0,
+        0,
+        W,
+        H
+    );
+
+
+    /*
+       خطوط ظریف
+    */
+
+    ctx.globalAlpha=.35;
+
+    for(
+        let i=0;
+        i<25;
+        i++
+    ){
+
+        ctx.fillStyle=
+            "#ffffff";
+
+        ctx.beginPath();
+
+        ctx.arc(
+            (i*173)%W,
+            (i*97)%H,
+            1.2,
+            0,
+            Math.PI*2
+        );
+
+        ctx.fill();
+
+    }
+
+    ctx.globalAlpha=1;
+
+
+    /*
+       زمین
+    */
+
+    ctx.strokeStyle=
+        "#ffffff20";
+
+    ctx.lineWidth=3;
+
+    ctx.strokeRect(
+        30,
+        55,
+        W-60,
+        H-110
+    );
+
+
+    /*
+       خط وسط
+    */
+
+    ctx.setLineDash([
+        12,
+        18
+    ]);
+
+    ctx.strokeStyle=
+        "#ffffff18";
+
+    ctx.lineWidth=4;
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        W/2,
+        55
+    );
+
+    ctx.lineTo(
+        W/2,
+        H-55
+    );
+
+    ctx.stroke();
+
+    ctx.setLineDash([]);
+
+
+    /*
+       امتیاز
+    */
+
+    ctx.textAlign=
+        "center";
+
+    ctx.font=
+        "900 46px Arial";
+
+    ctx.fillStyle=
+        p1.color;
+
+    ctx.fillText(
+        p1.score,
+        W/2-75,
+        42
+    );
+
+    ctx.fillStyle=
+        "#ffffff55";
+
+    ctx.font=
+        "bold 22px Arial";
+
+    ctx.fillText(
+        ":",
+        W/2,
+        42
+    );
+
+    ctx.fillStyle=
+        p2.color;
+
+    ctx.font=
+        "900 46px Arial";
+
+    ctx.fillText(
+        p2.score,
+        W/2+75,
+        42
+    );
+
+
+    /*
+       شمارنده برخورد
+    */
+
+    ctx.font=
+        "bold 14px Tahoma";
+
+    ctx.fillStyle=
+        "#ffffff99";
+
+    ctx.fillText(
+        "برخوردها: "+
+        totalHits,
+        W/2,
+        H-20
+    );
+
+
+    /*
+       سرعت
+    */
+
+    ctx.font=
+        "bold 13px Tahoma";
+
+    ctx.fillStyle=
+        ball.fire
+        ?" #ff7b00"
+        :"#ffffff77";
+
+    ctx.fillText(
+        "سرعت توپ: "+
+        Math.round(ball.speed),
+        W/2,
+        72
+    );
+
+
+    /*
+       آیتم
+    */
+
+    drawItem();
+
+
+    /*
+       توپ
+    */
+
+    drawBall();
+
+
+    /*
+       تخته‌ها
+    */
+
+    drawPaddle(p1);
+
+    drawPaddle(p2);
+
+
+    /*
+       ذرات
+    */
+
+    for(
+        const p of particles
+    ){
+
+        ctx.globalAlpha=
+            Math.max(
+                0,
+                p.life
+            );
+
+        ctx.fillStyle=
+            p.color;
+
+        ctx.beginPath();
+
+        ctx.arc(
+            p.x,
+            p.y,
+            p.size,
+            0,
+            Math.PI*2
+        );
+
+        ctx.fill();
+
+    }
+
+    ctx.globalAlpha=1;
+
+
+    /*
+       لرزش صفحه
+    */
+
+    if(screenShake>0){
+
+        ctx.fillStyle=
+            "#ffffff15";
+
+        ctx.fillRect(
+            0,
+            0,
+            W,
+            H
+        );
+
+    }
+
+}
+
+
+/* =========================
+   GAME LOOP
+========================= */
+
+function loop(time){
+
+    const dt=
+        Math.min(
+            (time-lastTime)/1000 ||
+            0,
+            .033
+        );
+
+    lastTime=time;
+
+    update(dt);
+
+    draw();
+
+    requestAnimationFrame(
+        loop
+    );
+
+}
+
+
+/* =========================
+   START
+========================= */
+
+startButton.addEventListener(
+    "click",
+    function(){
+
+        resetGame();
+
+        menu.classList.add(
+            "hidden"
+        );
+
+        running=true;
+
+        showMessage(
+            "🎮 بازی شروع شد!"
+        );
+
+    }
+);
+
+
+/* =========================
+   START LOOP
+========================= */
+
+resetGame();
+
+requestAnimationFrame(
+    loop
+);
+
+</script>
+
+</body>
+</html>
