@@ -2,13 +2,15 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport"
+      content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
+
 <title>NEON DUEL</title>
 
 <style>
 *{
     box-sizing:border-box;
-    user-select:none;
+    -webkit-tap-highlight-color:transparent;
 }
 
 html,body{
@@ -16,221 +18,297 @@ html,body{
     width:100%;
     height:100%;
     overflow:hidden;
-    background:#050816;
+    background:#050712;
     font-family:Tahoma,Arial,sans-serif;
     color:white;
+    touch-action:none;
+    overscroll-behavior:none;
 }
 
 body{
     display:flex;
-    justify-content:center;
     align-items:center;
-}
-
-#gameBox{
-    width:min(1200px,96vw);
-    height:min(760px,94vh);
-    position:relative;
-    overflow:hidden;
-    border-radius:22px;
-    border:2px solid #273454;
-    background:#070b18;
-    box-shadow:0 0 50px #000;
-}
-
-canvas{
-    width:100%;
-    height:100%;
-    display:block;
-}
-
-.screen{
-    position:absolute;
-    inset:0;
-    display:flex;
     justify-content:center;
-    align-items:center;
-    background:rgba(3,6,18,.96);
-    z-index:20;
 }
 
-.panel{
-    width:min(650px,90%);
-    padding:32px;
+/* ================= MENU ================= */
+
+#menu{
+    width:min(900px,94vw);
+    padding:35px;
+    border:1px solid rgba(0,220,255,.3);
+    border-radius:28px;
+    background:
+        radial-gradient(circle at top,#142344 0%,#090d1d 55%,#050712 100%);
+    box-shadow:
+        0 0 50px rgba(0,200,255,.12),
+        inset 0 0 40px rgba(255,255,255,.02);
     text-align:center;
-    border-radius:25px;
-    background:linear-gradient(145deg,#10182b,#080d1b);
-    border:1px solid #33446b;
-    box-shadow:0 20px 80px #000;
 }
 
-h1{
-    margin:0 0 10px;
-    font-size:48px;
-    letter-spacing:3px;
+.logo{
+    font-size:clamp(42px,8vw,82px);
+    font-weight:900;
+    letter-spacing:6px;
+    color:#fff;
+    text-shadow:
+        0 0 10px #00d9ff,
+        0 0 25px #00d9ff,
+        0 0 55px rgba(0,217,255,.5);
+    margin-bottom:8px;
 }
 
 .subtitle{
-    color:#aab8d0;
-    line-height:2;
-    margin-bottom:20px;
+    color:#9ca9c8;
+    margin-bottom:28px;
+    font-size:15px;
 }
 
-button{
-    border:0;
-    border-radius:14px;
-    padding:14px 25px;
-    background:linear-gradient(135deg,#38d9ff,#5578ff);
+.section-title{
+    font-size:18px;
+    color:#dce8ff;
+    margin:18px 0 12px;
+}
+
+.mode-row{
+    display:flex;
+    gap:14px;
+    justify-content:center;
+    flex-wrap:wrap;
+}
+
+.mode-btn{
+    width:250px;
+    padding:17px 20px;
+    border-radius:16px;
+    border:1px solid rgba(0,220,255,.28);
+    background:linear-gradient(145deg,#111d38,#0b1123);
     color:white;
-    font:bold 17px Tahoma;
+    font-size:17px;
+    font-weight:bold;
     cursor:pointer;
+    transition:.2s;
 }
 
-button:hover{
-    filter:brightness(1.12);
+.mode-btn:hover{
+    transform:translateY(-3px);
+    border-color:#00d9ff;
+    box-shadow:0 0 25px rgba(0,217,255,.2);
 }
 
-.hidden{
-    display:none!important;
-}
-
-.modeButtons{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:10px;
-    margin:15px 0;
-}
-
-.modeBtn{
-    background:#121c32;
-    border:1px solid #33446b;
-}
-
-.modeBtn.active{
-    background:linear-gradient(135deg,#38d9ff,#5578ff);
+.mode-btn.active{
+    background:linear-gradient(145deg,#063d51,#10244b);
+    border-color:#00eaff;
+    box-shadow:
+        0 0 20px rgba(0,220,255,.28),
+        inset 0 0 20px rgba(0,220,255,.08);
 }
 
 #difficultyBox{
-    margin:12px 0;
-}
-
-#difficulty{
-    width:100%;
-    padding:12px;
-    border-radius:12px;
-    background:#0b1325;
-    color:white;
-    border:1px solid #33446b;
-    font:16px Tahoma;
-}
-
-.controls{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:10px;
-    margin-top:18px;
-}
-
-.control{
-    padding:13px;
-    border-radius:12px;
-    background:#ffffff08;
-    border:1px solid #ffffff12;
-    color:#b9c5df;
-    line-height:1.8;
-    font-size:13px;
-}
-
-#message{
-    position:absolute;
-    top:82px;
-    left:50%;
-    transform:translateX(-50%);
-    z-index:14;
-    padding:10px 20px;
-    border-radius:12px;
-    background:#07111ddd;
-    border:1px solid #ffffff20;
-    font-weight:bold;
-    opacity:0;
-    transition:.2s;
-    pointer-events:none;
-}
-
-#message.show{
-    opacity:1;
-}
-
-#homeButton{
-    position:absolute;
-    top:12px;
-    left:12px;
-    z-index:15;
     display:none;
-    padding:9px 15px;
-    font-size:14px;
-    background:#101a35ee;
-    border:1px solid #ffffff25;
+    margin-top:20px;
 }
 
-.mobileControls{
-    display:none;
-    position:absolute;
-    left:0;
-    right:0;
-    bottom:8px;
-    z-index:13;
-    justify-content:space-between;
-    padding:0 15px;
-    pointer-events:none;
-}
-
-.mobileSide{
+.difficulty-row{
     display:flex;
-    gap:8px;
-    pointer-events:auto;
+    justify-content:center;
+    gap:10px;
+    flex-wrap:wrap;
 }
 
-.mobileBtn{
-    width:58px;
-    height:58px;
-    padding:0;
+.diff-btn{
+    min-width:120px;
+    padding:12px 18px;
+    border-radius:13px;
+    border:1px solid #293653;
+    background:#0d1427;
+    color:#aab6d1;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.diff-btn.active{
+    color:white;
+    border-color:#00d9ff;
+    background:#12314b;
+}
+
+.start-btn{
+    margin-top:28px;
+    width:min(400px,90%);
+    padding:17px;
+    border:0;
     border-radius:17px;
-    background:#101a35dd;
-    border:1px solid #ffffff30;
-    font-size:27px;
+    background:linear-gradient(90deg,#00b7ff,#6c4dff);
+    color:white;
+    font-size:20px;
+    font-weight:900;
+    cursor:pointer;
+    box-shadow:0 0 30px rgba(0,190,255,.25);
+}
+
+.info{
+    margin-top:22px;
+    color:#71809e;
+    font-size:13px;
+    line-height:2;
+}
+
+/* ================= GAME ================= */
+
+#gameScreen{
+    display:none;
+    position:fixed;
+    inset:0;
+    width:100%;
+    height:100%;
+    background:#03050d;
+}
+
+#gameBox{
+    position:absolute;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+    width:min(1200px,100vw);
+    aspect-ratio:1200 / 700;
+    max-height:100vh;
+    background:#050916;
+    overflow:hidden;
+    border:1px solid rgba(0,220,255,.25);
+    box-shadow:
+        0 0 60px rgba(0,180,255,.08),
+        inset 0 0 50px rgba(0,0,0,.5);
+}
+
+canvas{
+    display:block;
+    width:100%;
+    height:100%;
     touch-action:none;
 }
 
-.mobileBtn:active{
-    transform:scale(.92);
+/* HOME BUTTON */
+
+#homeBtn{
+    position:absolute;
+    top:15px;
+    left:15px;
+    z-index:20;
+    border:1px solid rgba(0,220,255,.35);
+    background:rgba(4,10,25,.85);
+    color:#fff;
+    padding:10px 15px;
+    border-radius:12px;
+    font-family:Tahoma;
+    font-size:14px;
+    cursor:pointer;
+    backdrop-filter:blur(8px);
 }
+
+#homeBtn:hover{
+    border-color:#00eaff;
+    box-shadow:0 0 18px rgba(0,220,255,.25);
+}
+
+/* MOBILE CONTROLS */
+
+#mobileControls{
+    display:none;
+    position:absolute;
+    left:50%;
+    bottom:calc(18px + env(safe-area-inset-bottom));
+    transform:translateX(-50%);
+    z-index:50;
+    gap:14px;
+    direction:ltr;
+}
+
+.mobileBtn{
+    width:76px;
+    height:76px;
+    border-radius:22px;
+    border:1px solid rgba(0,230,255,.5);
+    background:rgba(8,20,40,.9);
+    color:#fff;
+    font-size:34px;
+    font-weight:bold;
+    box-shadow:
+        0 0 20px rgba(0,220,255,.16),
+        inset 0 0 15px rgba(0,220,255,.05);
+    user-select:none;
+    -webkit-user-select:none;
+    touch-action:none;
+}
+
+.mobileBtn:active,
+.mobileBtn.pressed{
+    background:rgba(0,170,220,.45);
+    border-color:#00eaff;
+    transform:scale(.94);
+    box-shadow:0 0 28px rgba(0,220,255,.4);
+}
+
+/* MOBILE FULLSCREEN */
 
 @media(max-width:700px){
 
-    h1{
-        font-size:32px;
+    body{
+        display:block;
     }
 
-    .panel{
-        padding:22px;
+    #menu{
+        width:94vw;
+        max-height:94vh;
+        overflow:auto;
+        padding:24px 16px;
+        border-radius:22px;
     }
 
-    .modeButtons{
-        grid-template-columns:1fr;
+    .logo{
+        font-size:43px;
+        letter-spacing:3px;
     }
 
-    .controls{
-        grid-template-columns:1fr;
+    .mode-btn{
+        width:100%;
+        max-width:330px;
     }
 
-    .mobileControls{
+    #gameBox{
+        width:100vw;
+        height:100dvh;
+        max-height:none;
+        aspect-ratio:auto;
+        border:0;
+        border-radius:0;
+    }
+
+    #homeBtn{
+        top:calc(10px + env(safe-area-inset-top));
+        left:10px;
+        padding:9px 12px;
+        font-size:12px;
+    }
+
+    #mobileControls{
         display:flex;
+    }
+}
+
+/* very small phones */
+
+@media(max-height:500px) and (max-width:800px){
+
+    #mobileControls{
+        bottom:8px;
     }
 
     .mobileBtn{
-        width:55px;
-        height:55px;
+        width:62px;
+        height:62px;
+        border-radius:18px;
+        font-size:28px;
     }
 }
 </style>
@@ -238,1932 +316,1411 @@ button:hover{
 
 <body>
 
-<div id="gameBox">
+<!-- ================= MENU ================= -->
 
-<canvas id="game" width="1200" height="700"></canvas>
+<div id="menu">
 
-<div id="message"></div>
+    <div class="logo">NEON DUEL</div>
 
-<button id="homeButton">
-⌂ بازگشت به خانه
-</button>
-
-<div class="mobileControls">
-
-    <div class="mobileSide">
-        <button class="mobileBtn" id="p1Up">▲</button>
-        <button class="mobileBtn" id="p1Down">▼</button>
+    <div class="subtitle">
+        نبرد دو بازیکنه نئونی
     </div>
 
-    <div class="mobileSide">
-        <button class="mobileBtn" id="p2Up">▲</button>
-        <button class="mobileBtn" id="p2Down">▼</button>
+    <div class="section-title">
+        حالت بازی
+    </div>
+
+    <div class="mode-row">
+
+        <button class="mode-btn active" id="twoPlayerBtn">
+            🎮 دو نفره
+            <br>
+            <small>PC / Controller</small>
+        </button>
+
+        <button class="mode-btn" id="singlePlayerBtn">
+            🤖 تک نفره
+            <br>
+            <small>مقابل ربات</small>
+        </button>
+
+    </div>
+
+    <div id="difficultyBox">
+
+        <div class="section-title">
+            درجه سختی ربات
+        </div>
+
+        <div class="difficulty-row">
+
+            <button class="diff-btn active" data-diff="normal">
+                معمولی
+            </button>
+
+            <button class="diff-btn" data-diff="hard">
+                سخت
+            </button>
+
+            <button class="diff-btn" data-diff="pro">
+                حرفه‌ای
+            </button>
+
+        </div>
+
+    </div>
+
+    <button class="start-btn" id="startBtn">
+        شروع بازی
+    </button>
+
+    <div class="info">
+        دو نفره: بازیکن ۱ = W / S &nbsp;&nbsp; بازیکن ۲ = ↑ / ↓
+        <br>
+        موبایل: دکمه‌های پایین صفحه برای بازیکن ۱
+        <br>
+        دسته PS5: آنالوگ چپ بالا و پایین
     </div>
 
 </div>
 
-<div id="menu" class="screen">
 
-<div class="panel">
+<!-- ================= GAME ================= -->
 
-<h1>NEON DUEL</h1>
+<div id="gameScreen">
 
-<div class="subtitle">
+    <div id="gameBox">
 
-🎮 بازی آرکید دوئل<br>
+        <canvas id="canvas" width="1200" height="700"></canvas>
 
-هر بازی تا <b>۱۰ امتیاز</b><br>
+        <button id="homeBtn">
+            ⌂ بازگشت به خانه
+        </button>
 
-⚡ هر ۵ برخورد سرعت توپ بیشتر می‌شود<br>
+        <!-- فقط یک جفت کنترل برای موبایل -->
+        <div id="mobileControls">
 
-🎁 آیتم‌های شانسی وسط زمین ظاهر می‌شوند
+            <button class="mobileBtn" id="mobileUp">
+                ▲
+            </button>
 
-</div>
+            <button class="mobileBtn" id="mobileDown">
+                ▼
+            </button>
 
-<div class="modeButtons">
+        </div>
 
-<button class="modeBtn active" data-mode="2p">
-👥 دونفره (PC)
-</button>
-
-<button class="modeBtn" data-mode="bot">
-🤖 تک‌نفره
-</button>
-
-</div>
-
-<div id="difficultyBox" class="hidden">
-
-<select id="difficulty">
-
-<option value="normal">
-🟢 معمولی
-</option>
-
-<option value="hard">
-🟠 سخت
-</option>
-
-<option value="expert">
-🔴 حرفه‌ای
-</option>
-
-</select>
+    </div>
 
 </div>
 
-<button id="startButton">
-شروع بازی
-</button>
-
-<div class="controls">
-
-<div class="control">
-
-<b style="color:#38d9ff">
-🔵 بازیکن ۱
-</b>
-
-<br>
-
-🎮 آنالوگ چپ PS5<br>
-⌨️ W / S
-
-</div>
-
-<div class="control">
-
-<b style="color:#ff5b8a">
-🔴 بازیکن ۲
-</b>
-
-<br>
-
-🎮 دسته دوم<br>
-⌨️ ↑ / ↓
-
-</div>
-
-</div>
-
-<div class="control" style="margin-top:10px">
-
-📱 موبایل: دکمه‌های ▲ و ▼ پایین صفحه
-
-</div>
-
-</div>
-
-</div>
-
-</div>
 
 <script>
 
-"use strict";
+/* =========================================================
+   NEON DUEL
+   ========================================================= */
 
-/* =========================
-   CANVAS
-========================= */
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
 
-const canvas=document.getElementById("game");
-const ctx=canvas.getContext("2d");
+const W = 1200;
+const H = 700;
 
-const W=canvas.width;
-const H=canvas.height;
+/* ================= STATE ================= */
+
+let gameMode = "2p";
+let difficulty = "normal";
+
+let gameRunning = false;
+let gameOver = false;
+
+let lastTime = 0;
+
+let score1 = 0;
+let score2 = 0;
+
+let rallyHits = 0;
+
+let shake = 0;
+
+let particles = [];
+
+let keys = {};
+
+let mobileUp = false;
+let mobileDown = false;
+
+let botTimer = 0;
+let botTargetY = H / 2;
+let botError = 0;
+
+let item = null;
+
+let message = "";
+let messageTimer = 0;
 
 
-/* =========================
-   UI
-========================= */
+/* ================= PLAYERS ================= */
 
-const menu=document.getElementById("menu");
-const startButton=document.getElementById("startButton");
-const homeButton=document.getElementById("homeButton");
-const message=document.getElementById("message");
+const player1 = {
+    x:45,
+    y:H/2-70,
+    w:22,
+    h:140,
+    speed:570,
+    color:"#00eaff"
+};
 
-const difficultyBox=
-document.getElementById("difficultyBox");
-
-const difficulty=
-document.getElementById("difficulty");
-
-const modeButtons=
-document.querySelectorAll(".modeBtn");
-
-let gameMode="2p";
-let botDifficulty="normal";
+const player2 = {
+    x:W-67,
+    y:H/2-70,
+    w:22,
+    h:140,
+    speed:570,
+    color:"#ff3bd4"
+};
 
 
-/* =========================
-   MODE
-========================= */
+/* ================= BALL ================= */
 
-modeButtons.forEach(button=>{
+const ball = {
+    x:W/2,
+    y:H/2,
+    r:12,
+    vx:500,
+    vy:180,
+    baseSpeed:500,
+    speed:500,
+    fire:false,
+    turbo:false,
+    slowTimer:0
+};
 
-    button.addEventListener("click",()=>{
 
-        modeButtons.forEach(b=>{
-            b.classList.remove("active");
-        });
+/* ================= ITEMS ================= */
 
-        button.classList.add("active");
+const itemTypes = [
+    "FIRE",
+    "TURBO",
+    "SLOW"
+];
 
-        gameMode=
-            button.dataset.mode;
 
-        difficultyBox.classList.toggle(
-            "hidden",
-            gameMode!=="bot"
-        );
+/* =========================================================
+   MENU
+   ========================================================= */
 
-    });
+const twoPlayerBtn =
+    document.getElementById("twoPlayerBtn");
+
+const singlePlayerBtn =
+    document.getElementById("singlePlayerBtn");
+
+const difficultyBox =
+    document.getElementById("difficultyBox");
+
+twoPlayerBtn.onclick = () => {
+
+    gameMode = "2p";
+
+    twoPlayerBtn.classList.add("active");
+    singlePlayerBtn.classList.remove("active");
+
+    difficultyBox.style.display = "none";
+};
+
+singlePlayerBtn.onclick = () => {
+
+    gameMode = "single";
+
+    singlePlayerBtn.classList.add("active");
+    twoPlayerBtn.classList.remove("active");
+
+    difficultyBox.style.display = "block";
+};
+
+document.querySelectorAll(".diff-btn").forEach(btn => {
+
+    btn.onclick = () => {
+
+        document.querySelectorAll(".diff-btn")
+            .forEach(x => x.classList.remove("active"));
+
+        btn.classList.add("active");
+
+        difficulty = btn.dataset.diff;
+    };
 
 });
 
 
-difficulty.addEventListener(
-    "change",
-    ()=>{
-        botDifficulty=
-            difficulty.value;
-    }
-);
-
-
-/* =========================
-   MOBILE
-========================= */
-
-const touchMove={
-    p1:0,
-    p2:0
-};
-
-function bindMobile(
-    id,
-    player,
-    value
-){
-
-    const element=
-        document.getElementById(id);
-
-    function start(e){
-
-        e.preventDefault();
-
-        touchMove[player]=value;
-
-    }
-
-    function stop(e){
-
-        e.preventDefault();
-
-        if(
-            touchMove[player]===value
-        ){
-            touchMove[player]=0;
-        }
-
-    }
-
-    element.addEventListener(
-        "pointerdown",
-        start
-    );
-
-    element.addEventListener(
-        "pointerup",
-        stop
-    );
-
-    element.addEventListener(
-        "pointercancel",
-        stop
-    );
-
-    element.addEventListener(
-        "pointerleave",
-        stop
-    );
-
-}
-
-bindMobile(
-    "p1Up",
-    "p1",
-    -1
-);
-
-bindMobile(
-    "p1Down",
-    "p1",
-    1
-);
-
-bindMobile(
-    "p2Up",
-    "p2",
-    -1
-);
-
-bindMobile(
-    "p2Down",
-    "p2",
-    1
-);
-
-
-/* =========================
+/* =========================================================
    KEYBOARD
-========================= */
+   ========================================================= */
 
-const keys={};
+window.addEventListener("keydown", e => {
 
-window.addEventListener(
-    "keydown",
-    e=>{
+    keys[e.key.toLowerCase()] = true;
 
-        keys[e.code]=true;
+    if([
+        "ArrowUp",
+        "ArrowDown",
+        " "
+    ].includes(e.key)){
+        e.preventDefault();
+    }
 
-        if(
-            e.code==="ArrowUp" ||
-            e.code==="ArrowDown"
-        ){
-            e.preventDefault();
+});
+
+window.addEventListener("keyup", e => {
+
+    keys[e.key.toLowerCase()] = false;
+
+});
+
+
+/* =========================================================
+   GAMEPAD
+   ========================================================= */
+
+function getPads(){
+
+    return navigator.getGamepads
+        ? navigator.getGamepads()
+        : [];
+}
+
+
+function readGamepad(index){
+
+    const pads = getPads();
+
+    const pad = pads[index];
+
+    if(!pad) return 0;
+
+    let value = 0;
+
+    if(pad.axes && pad.axes.length >= 2){
+
+        value = pad.axes[1];
+
+    }
+
+    if(Math.abs(value) < .18){
+
+        value = 0;
+
+    }
+
+    return value;
+}
+
+
+/* =========================================================
+   MOBILE CONTROLS
+   ========================================================= */
+
+function setupMobileButton(button, direction){
+
+    const press = e => {
+
+        e.preventDefault();
+
+        if(direction === "up"){
+            mobileUp = true;
+        }else{
+            mobileDown = true;
         }
 
-    }
+        button.classList.add("pressed");
+    };
+
+
+    const release = e => {
+
+        e.preventDefault();
+
+        if(direction === "up"){
+            mobileUp = false;
+        }else{
+            mobileDown = false;
+        }
+
+        button.classList.remove("pressed");
+    };
+
+
+    button.addEventListener("pointerdown", press);
+    button.addEventListener("pointerup", release);
+    button.addEventListener("pointercancel", release);
+    button.addEventListener("pointerleave", release);
+
+    /* fallback برای گوشی‌هایی که Pointer Event مشکل دارد */
+
+    button.addEventListener("touchstart", press, {
+        passive:false
+    });
+
+    button.addEventListener("touchend", release, {
+        passive:false
+    });
+
+    button.addEventListener("touchcancel", release, {
+        passive:false
+    });
+}
+
+
+setupMobileButton(
+    document.getElementById("mobileUp"),
+    "up"
 );
 
-window.addEventListener(
-    "keyup",
-    e=>{
-
-        keys[e.code]=false;
-
-    }
+setupMobileButton(
+    document.getElementById("mobileDown"),
+    "down"
 );
 
 
-/* =========================
-   GAME STATE
-========================= */
-
-let running=false;
-
-let lastTime=0;
-
-const MAX_SCORE=10;
-
-let totalHits=0;
-
-let particles=[];
-
-let screenShake=0;
-
-
-/* =========================
-   GAMEPADS
-========================= */
-
-let gamepads=[];
-
-function updateGamepads(){
-
-    if(!navigator.getGamepads){
-
-        gamepads=[];
-
-        return;
-
-    }
-
-    gamepads=
-        Array.from(
-            navigator.getGamepads()
-        );
-
-}
-
-function getControllerY(index){
-
-    updateGamepads();
-
-    const pad=
-        gamepads[index];
-
-    if(!pad){
-        return 0;
-    }
-
-    let y=
-        pad.axes[1] || 0;
-
-    if(
-        Math.abs(y)<0.12
-    ){
-        y=0;
-    }
-
-    return y;
-
-}
-
-
-/* =========================
-   PLAYERS
-========================= */
-
-const p1={
-
-    x:55,
-
-    y:H/2-65,
-
-    w:24,
-
-    h:130,
-
-    color:"#38d9ff",
-
-    score:0,
-
-    speed:560
-
-};
-
-const p2={
-
-    x:W-79,
-
-    y:H/2-65,
-
-    w:24,
-
-    h:130,
-
-    color:"#ff5b8a",
-
-    score:0,
-
-    speed:560
-
-};
-
-
-/* =========================
-   BALL
-========================= */
-
-const ball={
-
-    x:W/2,
-
-    y:H/2,
-
-    r:13,
-
-    vx:0,
-
-    vy:0,
-
-    speed:500,
-
-    maxSpeed:1300,
-
-    fire:false,
-
-    fireTimer:0
-
-};
-
-
-/* =========================
-   ITEMS
-========================= */
-
-let item=null;
-
-let itemTimer=4;
-
-const ITEM_TYPES=[
-
-    {
-        type:"fire",
-        color:"#ff6a00",
-        icon:"🔥"
-    },
-
-    {
-        type:"turbo",
-        color:"#ffe600",
-        icon:"⚡"
-    },
-
-    {
-        type:"slow",
-        color:"#53d8ff",
-        icon:"❄️"
-    }
-
-];
-
-
-/* =========================
-   RESET BALL
-========================= */
-
-function resetBall(direction){
-
-    ball.x=W/2;
-
-    ball.y=H/2;
-
-    ball.speed=500;
-
-    ball.fire=false;
-
-    ball.fireTimer=0;
-
-    const angle=
-        Math.random()*1.1-
-        .55;
-
-    ball.vx=
-        Math.cos(angle)*
-        ball.speed*
-        direction;
-
-    ball.vy=
-        Math.sin(angle)*
-        ball.speed;
-
-}
-
-
-/* =========================
-   BOT STATE
-========================= */
-
-let botThinkTimer=0;
-
-let botTargetY=H/2;
-
-
-/* =========================
-   RESET GAME
-========================= */
+/* =========================================================
+   RESET
+   ========================================================= */
 
 function resetGame(){
 
-    p1.score=0;
+    score1 = 0;
+    score2 = 0;
 
-    p2.score=0;
+    rallyHits = 0;
 
-    p1.y=
-        H/2-
-        p1.h/2;
+    gameOver = false;
 
-    p2.y=
-        H/2-
-        p2.h/2;
+    particles = [];
 
-    totalHits=0;
+    item = null;
 
-    particles=[];
+    ball.fire = false;
+    ball.turbo = false;
+    ball.slowTimer = 0;
 
-    item=null;
+    resetRound(1);
 
-    itemTimer=4;
+    player1.y = H/2 - player1.h/2;
+    player2.y = H/2 - player2.h/2;
 
-    screenShake=0;
+    botTargetY = H/2;
 
-    botThinkTimer=0;
+    botTimer = 0;
 
-    botTargetY=H/2;
-
-    resetBall(
-        Math.random()<.5
-        ?1
-        :-1
-    );
-
+    message = "";
+    messageTimer = 0;
 }
 
 
-/* =========================
-   MESSAGE
-========================= */
+function resetRound(direction){
 
-let messageTimer=0;
+    ball.x = W/2;
+    ball.y = H/2;
 
-function showMessage(text){
+    ball.speed = 500;
 
-    message.textContent=text;
+    ball.fire = false;
+    ball.turbo = false;
+    ball.slowTimer = 0;
 
-    message.classList.add("show");
+    const angle =
+        (Math.random() * .7 - .35);
 
-    messageTimer=1.3;
+    ball.vx =
+        direction * ball.speed;
 
+    ball.vy =
+        ball.speed * Math.sin(angle);
+
+    player1.y = H/2 - player1.h/2;
+    player2.y = H/2 - player2.h/2;
+
+    item = null;
+
+    rallyHits = 0;
+
+    botError =
+        (Math.random() - .5) * 70;
 }
 
 
-/* =========================
-   PARTICLES
-========================= */
+/* =========================================================
+   START / HOME
+   ========================================================= */
 
-function createParticles(
-    x,
-    y,
-    color,
-    count=20
-){
+document.getElementById("startBtn").onclick = () => {
 
-    for(
-        let i=0;
-        i<count;
-        i++
-    ){
+    document.getElementById("menu").style.display = "none";
 
-        const angle=
-            Math.random()*
-            Math.PI*2;
+    document.getElementById("gameScreen").style.display = "block";
 
-        const speed=
-            80+
-            Math.random()*420;
+    resetGame();
 
-        particles.push({
+    gameRunning = true;
 
-            x:x,
+    lastTime = performance.now();
 
-            y:y,
+    requestAnimationFrame(loop);
+};
 
-            vx:
-                Math.cos(angle)*
-                speed,
 
-            vy:
-                Math.sin(angle)*
-                speed,
+document.getElementById("homeBtn").onclick = () => {
 
-            life:
-                .3+
-                Math.random()*.6,
+    gameRunning = false;
 
-            size:
-                2+
-                Math.random()*5,
+    document.getElementById("gameScreen").style.display = "none";
 
-            color:color
+    document.getElementById("menu").style.display = "block";
 
-        });
+    mobileUp = false;
+    mobileDown = false;
+};
+
+
+/* =========================================================
+   PLAYER 1
+   ========================================================= */
+
+function updatePlayer1(dt){
+
+    let dir = 0;
+
+    /* کیبورد */
+
+    if(keys["w"]){
+        dir -= 1;
+    }
+
+    if(keys["s"]){
+        dir += 1;
+    }
+
+    /* موبایل */
+
+    if(mobileUp){
+        dir -= 1;
+    }
+
+    if(mobileDown){
+        dir += 1;
+    }
+
+    /* دسته اول */
+
+    const gp = readGamepad(0);
+
+    if(gp !== 0){
+
+        dir = gp;
 
     }
 
+    player1.y += dir * player1.speed * dt;
+
+    player1.y =
+        Math.max(
+            25,
+            Math.min(
+                H - player1.h - 25,
+                player1.y
+            )
+        );
 }
 
 
-/* =========================
-   BOT PREDICTION
-========================= */
+/* =========================================================
+   PLAYER 2 DESKTOP
+   ========================================================= */
+
+function updatePlayer2Human(dt){
+
+    let dir = 0;
+
+    if(keys["arrowup"]){
+        dir -= 1;
+    }
+
+    if(keys["arrowdown"]){
+        dir += 1;
+    }
+
+    const gp = readGamepad(1);
+
+    if(gp !== 0){
+
+        dir = gp;
+
+    }
+
+    player2.y += dir * player2.speed * dt;
+
+    player2.y =
+        Math.max(
+            25,
+            Math.min(
+                H - player2.h - 25,
+                player2.y
+            )
+        );
+}
+
+
+/* =========================================================
+   BALL PREDICTION
+   ========================================================= */
 
 function predictBallYAtX(targetX){
 
-    if(ball.vx<=0){
-
+    if(ball.vx <= 0){
         return ball.y;
+    }
+
+    const distance =
+        targetX - ball.x;
+
+    if(distance <= 0){
+        return ball.y;
+    }
+
+    let t =
+        distance / Math.max(ball.vx,1);
+
+    /* ربات اجازه ندارد خیلی دور را پیش‌بینی کند */
+
+    t = Math.min(t,.42);
+
+    let predicted =
+        ball.y + ball.vy * t;
+
+    const top = 20;
+    const bottom = H - 20;
+
+    while(predicted < top || predicted > bottom){
+
+        if(predicted < top){
+
+            predicted =
+                top + (top - predicted);
+
+        }
+
+        if(predicted > bottom){
+
+            predicted =
+                bottom - (predicted - bottom);
+
+        }
 
     }
 
-    const distance=
-        Math.max(
-            0,
-            targetX-ball.x
-        );
-
-    /*
-       ربات فقط مقدار محدودی
-       جلوتر را نگاه می‌کند.
-       بنابراین کامل و غیرقابل شکست نیست.
-    */
-
-    const time=
-        Math.min(
-            .42,
-            distance/
-            Math.max(
-                1,
-                ball.vx
-            )
-        );
-
-    const minY=
-        55+
-        ball.r;
-
-    const maxY=
-        H-
-        55-
-        ball.r;
-
-    const range=
-        maxY-minY;
-
-    let y=
-        ball.y+
-        ball.vy*time;
-
-    if(range<=0){
-
-        return y;
-
-    }
-
-    /*
-       فقط یک bounce احتمالی
-    */
-
-    if(y<minY){
-
-        y=
-            minY+
-            (minY-y);
-
-    }
-
-    else if(y>maxY){
-
-        y=
-            maxY-
-            (y-maxY);
-
-    }
-
-    return Math.max(
-        minY,
-        Math.min(
-            maxY,
-            y
-        )
-    );
-
+    return predicted;
 }
 
 
-/* =========================
-   BOT AI
-========================= */
+/* =========================================================
+   BOT
+   ========================================================= */
 
-function getBotMove(dt){
+function updateBot(dt){
 
-    const settings={
+    botTimer -= dt;
 
-        normal:{
-            speed:.66,
-            deadzone:16,
-            reaction:.16,
-            error:55
-        },
+    /* ربات هر چند صدم ثانیه تصمیم جدید می‌گیرد
+       تا کاملاً رباتیک و بی‌نقص نباشد */
 
-        hard:{
-            speed:.80,
-            deadzone:12,
-            reaction:.11,
-            error:32
-        },
+    if(botTimer <= 0){
 
-        expert:{
-            speed:.92,
-            deadzone:9,
-            reaction:.075,
-            error:20
+        if(difficulty === "normal"){
+
+            botTimer = .18 + Math.random() * .08;
+
+            botTargetY =
+                ball.y +
+                (Math.random() - .5) * 150;
+
         }
 
-    };
+        else if(difficulty === "hard"){
 
-    const d=
-        settings[
-            botDifficulty
-        ] ||
-        settings.normal;
+            botTimer = .13 + Math.random() * .07;
 
+            if(ball.vx > 0){
 
-    botThinkTimer-=dt;
+                botTargetY =
+                    predictBallYAtX(player2.x)
+                    + (Math.random() - .5) * 90;
 
+            }else{
 
-    /*
-       ربات فقط هر چند صدم ثانیه
-       تصمیم جدید می‌گیرد.
-    */
-
-    if(
-        botThinkTimer<=0
-    ){
-
-        botThinkTimer=
-            d.reaction;
-
-
-        /*
-           وقتی توپ به سمت ربات است
-        */
-
-        if(
-            ball.vx>0 &&
-            ball.x>W*.30
-        ){
-
-            if(
-                botDifficulty===
-                "normal"
-            ){
-
-                /*
-                   معمولی:
-                   تقریباً توپ را دنبال می‌کند
-                   و خطای قابل توجه دارد.
-                */
-
-                botTargetY=
-                    ball.y+
-                    (
-                        Math.random()-.5
-                    )*
-                    d.error;
-
-            }
-
-            else{
-
-                botTargetY=
-                    predictBallYAtX(
-                        p2.x
-                    )+
-                    (
-                        Math.random()-.5
-                    )*
-                    d.error;
-
+                botTargetY =
+                    H/2 +
+                    (Math.random() - .5) * 160;
             }
 
         }
 
         else{
 
-            /*
-               وقتی توپ دور می‌شود
-               ربات آرام به وسط برمی‌گردد.
-            */
+            botTimer = .10 + Math.random() * .08;
 
-            botTargetY=
-                H/2+
-                (
-                    Math.random()-.5
-                )*
-                d.error;
+            if(ball.vx > 0){
+
+                botTargetY =
+                    predictBallYAtX(player2.x)
+                    + (Math.random() - .5) * 60;
+
+            }else{
+
+                botTargetY =
+                    H/2 +
+                    (Math.random() - .5) * 100;
+            }
 
         }
+    }
+
+
+    let center =
+        player2.y + player2.h/2;
+
+    let difference =
+        botTargetY - center;
+
+
+    /* سرعت ربات */
+
+    let speed;
+
+    if(difficulty === "normal"){
+
+        speed = 300;
+
+    }else if(difficulty === "hard"){
+
+        speed = 390;
+
+    }else{
+
+        speed = 455;
 
     }
 
 
-    const center=
-        p2.y+
-        p2.h/2;
+    /* محدود کردن حرکت */
 
-    const difference=
-        botTargetY-
-        center;
+    let move = 0;
 
+    if(Math.abs(difference) > 12){
 
-    if(
-        Math.abs(difference)
-        <=
-        d.deadzone
-    ){
-
-        return 0;
-
+        move =
+            Math.sign(difference);
     }
 
 
-    return Math.sign(
-        difference
-    )*
-    d.speed;
+    /* کمی تاخیر تصادفی */
 
+    if(Math.random() < .012){
+
+        move = 0;
+    }
+
+
+    player2.y +=
+        move * speed * dt;
+
+
+    player2.y =
+        Math.max(
+            25,
+            Math.min(
+                H-player2.h-25,
+                player2.y
+            )
+        );
 }
 
 
-/* =========================
-   PLAYERS
-========================= */
+/* =========================================================
+   PARTICLES
+   ========================================================= */
 
-function updatePlayers(dt){
+function particle(x,y,color,count=8){
 
-    /*
-       PLAYER 1
-    */
+    for(let i=0;i<count;i++){
 
-    let move1=
-        getControllerY(0);
+        particles.push({
 
+            x:x,
+            y:y,
 
-    if(move1===0){
+            vx:(Math.random()-.5)*350,
+            vy:(Math.random()-.5)*350,
 
-        if(
-            touchMove.p1!==0
-        ){
+            life:.4 + Math.random()*.5,
 
-            move1=
-                touchMove.p1;
+            maxLife:.8,
 
-        }
+            size:2 + Math.random()*5,
 
-        else if(
-            keys["KeyW"]
-        ){
-
-            move1=-1;
-
-        }
-
-        else if(
-            keys["KeyS"]
-        ){
-
-            move1=1;
-
-        }
-
+            color:color
+        });
     }
-
-
-    /*
-       PLAYER 2
-    */
-
-    let move2=0;
-
-
-    if(
-        gameMode==="bot"
-    ){
-
-        move2=
-            getBotMove(dt);
-
-    }
-
-    else{
-
-        move2=
-            getControllerY(1);
-
-
-        if(move2===0){
-
-            if(
-                touchMove.p2!==0
-            ){
-
-                move2=
-                    touchMove.p2;
-
-            }
-
-            else if(
-                keys["ArrowUp"]
-            ){
-
-                move2=-1;
-
-            }
-
-            else if(
-                keys["ArrowDown"]
-            ){
-
-                move2=1;
-
-            }
-
-        }
-
-    }
-
-
-    p1.y+=
-        move1*
-        p1.speed*
-        dt;
-
-    p2.y+=
-        move2*
-        p2.speed*
-        dt;
-
-
-    const top=55;
-
-    const bottom=
-        H-55;
-
-
-    p1.y=
-        Math.max(
-            top,
-            Math.min(
-                bottom-p1.h,
-                p1.y
-            )
-        );
-
-
-    p2.y=
-        Math.max(
-            top,
-            Math.min(
-                bottom-p2.h,
-                p2.y
-            )
-        );
-
 }
 
 
-/* =========================
-   ITEM
-========================= */
+function updateParticles(dt){
+
+    for(let i=particles.length-1;i>=0;i--){
+
+        const p = particles[i];
+
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+
+        p.vx *= .97;
+        p.vy *= .97;
+
+        p.life -= dt;
+
+        if(p.life <= 0){
+
+            particles.splice(i,1);
+        }
+    }
+}
+
+
+/* =========================================================
+   ITEMS
+   ========================================================= */
 
 function spawnItem(){
 
-    if(item){
-        return;
-    }
+    if(item) return;
 
-    const random=
-        ITEM_TYPES[
-            Math.floor(
-                Math.random()*
-                ITEM_TYPES.length
-            )
+    if(Math.random() > .0025) return;
+
+    const type =
+        itemTypes[
+            Math.floor(Math.random()*itemTypes.length)
         ];
 
-    item={
+    item = {
 
         x:W/2,
+        y:80 + Math.random()*(H-160),
 
-        y:
-            110+
-            Math.random()*
-            (H-220),
+        r:25,
 
-        type:random.type,
-
-        color:random.color,
-
-        icon:random.icon,
-
-        radius:27,
-
-        life:8,
+        type:type,
 
         rotation:0
-
     };
-
-    showMessage(
-        "🎁 آیتم ظاهر شد!"
-    );
-
 }
 
 
-/* =========================
-   ITEM COLLISION
-========================= */
+function updateItem(dt){
 
-function checkItemCollision(){
+    if(!item) return;
 
-    if(!item){
-        return;
-    }
+    item.rotation += dt * 2.5;
 
-    const dx=
-        ball.x-
-        item.x;
+    const dx =
+        ball.x - item.x;
 
-    const dy=
-        ball.y-
-        item.y;
+    const dy =
+        ball.y - item.y;
 
-    const distance=
-        Math.sqrt(
-            dx*dx+
-            dy*dy
-        );
+    const distance =
+        Math.sqrt(dx*dx + dy*dy);
 
+    if(distance < ball.r + item.r){
 
-    if(
-        distance<
-        ball.r+
-        item.radius
-    ){
+        activateItem(item.type);
 
-        activateItem(
-            item.type
-        );
-
-        createParticles(
+        particle(
             item.x,
             item.y,
-            item.color,
-            45
+            getItemColor(item.type),
+            18
         );
 
-        item=null;
-
-        itemTimer=
-            5+
-            Math.random()*4;
-
+        item = null;
     }
-
 }
 
 
-/* =========================
-   ITEM EFFECT
-========================= */
+function getItemColor(type){
+
+    if(type === "FIRE")
+        return "#ff3b30";
+
+    if(type === "TURBO")
+        return "#00eaff";
+
+    return "#a46cff";
+}
+
 
 function activateItem(type){
 
-    if(
-        type==="fire"
-    ){
+    if(type === "FIRE"){
 
-        ball.fire=true;
+        ball.fire = true;
 
-        ball.fireTimer=6;
-
-        ball.speed=
-            Math.min(
-                ball.speed+350,
-                ball.maxSpeed
-            );
-
-        showMessage(
-            "🔥 FIRE BALL!"
-        );
+        message = "🔥 FIRE BALL";
+        messageTimer = 1.1;
 
     }
 
+    if(type === "TURBO"){
 
-    if(
-        type==="turbo"
-    ){
+        ball.turbo = true;
 
-        ball.speed=
-            Math.min(
-                ball.speed+500,
-                ball.maxSpeed
-            );
+        ball.speed *= 1.45;
 
-        const length=
-            Math.hypot(
-                ball.vx,
-                ball.vy
-            );
+        const sign =
+            ball.vx >= 0 ? 1 : -1;
 
+        ball.vx =
+            sign * ball.speed;
 
-        if(length>0){
-
-            ball.vx=
-                ball.vx/
-                length*
-                ball.speed;
-
-            ball.vy=
-                ball.vy/
-                length*
-                ball.speed;
-
-        }
-
-        showMessage(
-            "⚡ TURBO!"
-        );
-
-        screenShake=.25;
+        message = "⚡ TURBO";
+        messageTimer = 1.1;
 
     }
 
+    if(type === "SLOW"){
 
-    if(
-        type==="slow"
-    ){
+        ball.slowTimer = 3;
 
-        ball.speed=
-            Math.max(
-                300,
-                ball.speed-250
-            );
-
-        const length=
-            Math.hypot(
-                ball.vx,
-                ball.vy
-            );
-
-
-        if(length>0){
-
-            ball.vx=
-                ball.vx/
-                length*
-                ball.speed;
-
-            ball.vy=
-                ball.vy/
-                length*
-                ball.speed;
-
-        }
-
-        showMessage(
-            "❄️ SLOW!"
-        );
-
+        message = "🌀 SLOW";
+        messageTimer = 1.1;
     }
-
 }
 
 
-/* =========================
-   PADDLE HIT
-========================= */
+/* =========================================================
+   COLLISION
+   ========================================================= */
 
-function hitPaddle(player){
+function paddleCollision(p){
 
-    const center=
-        player.y+
-        player.h/2;
-
-    const difference=
-        ball.y-
-        center;
-
-    const normalized=
-        difference/
-        (player.h/2);
-
-    const angle=
-        normalized*
-        (Math.PI/3);
-
-    const direction=
-        player===p1
-        ?1
-        :-1;
+    return (
+        ball.x + ball.r > p.x &&
+        ball.x - ball.r < p.x + p.w &&
+        ball.y + ball.r > p.y &&
+        ball.y - ball.r < p.y + p.h
+    );
+}
 
 
-    totalHits++;
+function hitPaddle(p,isLeft){
+
+    const relative =
+        (ball.y - (p.y + p.h/2))
+        / (p.h/2);
+
+    const clamped =
+        Math.max(-1,Math.min(1,relative));
+
+    const angle =
+        clamped * 1.05;
 
 
-    if(
-        totalHits%5===0
-    ){
+    rallyHits++;
 
-        ball.speed=
-            Math.min(
-                ball.speed+100,
-                ball.maxSpeed
-            );
 
-        showMessage(
-            "⚡ سرعت توپ بیشتر شد!"
-        );
+    /* افزایش سرعت هر ۵ برخورد */
 
-        screenShake=.2;
+    if(rallyHits % 5 === 0){
 
+        ball.speed *= 1.12;
+
+        message = "⚡ SPEED UP!";
+        messageTimer = .8;
     }
 
 
-    ball.speed=
-        Math.min(
-            ball.speed+18,
-            ball.maxSpeed
-        );
-
-
-    ball.vx=
-        Math.cos(angle)*
-        ball.speed*
-        direction;
-
-    ball.vy=
-        Math.sin(angle)*
+    let speed =
         ball.speed;
 
+    if(ball.slowTimer > 0){
 
-    if(
-        player===p1
-    ){
-
-        ball.x=
-            player.x+
-            player.w+
-            ball.r;
-
+        speed *= .7;
     }
 
-    else{
+    if(ball.turbo){
 
-        ball.x=
-            player.x-
-            ball.r;
-
+        speed *= 1.12;
     }
 
 
-    createParticles(
+    const direction =
+        isLeft ? 1 : -1;
+
+
+    ball.vx =
+        direction *
+        speed *
+        Math.cos(angle);
+
+
+    ball.vy =
+        speed *
+        Math.sin(angle);
+
+
+    if(Math.abs(ball.vy) < 90){
+
+        ball.vy =
+            (Math.random() > .5 ? 1 : -1) *
+            100;
+    }
+
+
+    if(isLeft){
+
+        ball.x =
+            p.x + p.w + ball.r + 2;
+
+    }else{
+
+        ball.x =
+            p.x - ball.r - 2;
+    }
+
+
+    particle(
         ball.x,
         ball.y,
-        player.color,
-        18
+        p.color,
+        14
     );
 
+    shake = 7;
 }
 
 
-/* =========================
-   SCORE
-========================= */
+/* =========================================================
+   UPDATE BALL
+   ========================================================= */
 
-function scorePoint(player){
+function updateBall(dt){
 
-    player.score++;
+    if(ball.slowTimer > 0){
+
+        ball.slowTimer -= dt;
+
+        if(ball.slowTimer <= 0){
+
+            ball.slowTimer = 0;
+        }
+    }
 
 
-    createParticles(
-        W/2,
-        H/2,
-        player.color,
-        60
-    );
+    let currentSpeedMultiplier = 1;
 
+    if(ball.slowTimer > 0){
+
+        currentSpeedMultiplier = .7;
+    }
+
+
+    ball.x +=
+        ball.vx *
+        dt *
+        currentSpeedMultiplier;
+
+    ball.y +=
+        ball.vy *
+        dt *
+        currentSpeedMultiplier;
+
+
+    /* top */
+
+    if(ball.y - ball.r <= 18){
+
+        ball.y = 18 + ball.r;
+
+        ball.vy =
+            Math.abs(ball.vy);
+
+        particle(
+            ball.x,
+            ball.y,
+            "#00eaff",
+            8
+        );
+    }
+
+
+    /* bottom */
+
+    if(ball.y + ball.r >= H-18){
+
+        ball.y = H-18-ball.r;
+
+        ball.vy =
+            -Math.abs(ball.vy);
+
+        particle(
+            ball.x,
+            ball.y,
+            "#ff3bd4",
+            8
+        );
+    }
+
+
+    /* player 1 */
 
     if(
-        player.score>=MAX_SCORE
+        ball.vx < 0 &&
+        paddleCollision(player1)
     ){
 
-        running=false;
+        hitPaddle(player1,true);
+    }
 
 
-        showMessage(
-            player===p1
-            ?"🏆 بازیکن ۱ برنده شد!"
-            :"🏆 بازیکن ۲ برنده شد!"
+    /* player 2 */
+
+    if(
+        ball.vx > 0 &&
+        paddleCollision(player2)
+    ){
+
+        hitPaddle(player2,false);
+    }
+
+
+    /* score */
+
+    if(ball.x < -50){
+
+        score2++;
+
+        particle(
+            25,
+            ball.y,
+            "#ff3bd4",
+            30
         );
 
+        checkWinner();
 
-        setTimeout(
-            ()=>{
+        if(!gameOver){
 
-                menu.classList.remove(
-                    "hidden"
-                );
+            resetRound(-1);
 
-                homeButton.style.display=
-                    "none";
-
-                startButton.textContent=
-                    "بازی دوباره";
-
-            },
-            900
-        );
-
-
-        return;
+            message = "بازیکن ۲ امتیاز گرفت";
+            messageTimer = 1;
+        }
 
     }
 
 
-    resetBall(
-        player===p1
-        ?-1
-        :1
-    );
+    if(ball.x > W+50){
 
+        score1++;
+
+        particle(
+            W-25,
+            ball.y,
+            "#00eaff",
+            30
+        );
+
+        checkWinner();
+
+        if(!gameOver){
+
+            resetRound(1);
+
+            message = "بازیکن ۱ امتیاز گرفت";
+            messageTimer = 1;
+        }
+    }
 }
 
 
-/* =========================
+/* =========================================================
+   WINNER
+   ========================================================= */
+
+function checkWinner(){
+
+    if(score1 >= 10 || score2 >= 10){
+
+        gameOver = true;
+
+        gameRunning = false;
+
+        if(score1 >= 10){
+
+            message = "🏆 بازیکن ۱ برنده شد!";
+
+        }else{
+
+            message = "🏆 بازیکن ۲ برنده شد!";
+        }
+
+        messageTimer = 999;
+    }
+}
+
+
+/* =========================================================
    UPDATE
-========================= */
+   ========================================================= */
 
 function update(dt){
 
-    if(!running){
-        return;
+    updatePlayer1(dt);
+
+    if(gameMode === "single"){
+
+        updateBot(dt);
+
+    }else{
+
+        updatePlayer2Human(dt);
     }
 
 
-    updatePlayers(dt);
+    updateBall(dt);
 
+    updateItem(dt);
 
-    /*
-       آیتم
-    */
+    spawnItem();
 
-    itemTimer-=dt;
+    updateParticles(dt);
 
+    if(messageTimer > 0){
 
-    if(
-        itemTimer<=0 &&
-        !item
-    ){
-
-        spawnItem();
-
-        itemTimer=
-            5+
-            Math.random()*5;
-
+        messageTimer -= dt;
     }
 
+    if(shake > 0){
 
-    if(item){
+        shake *= .88;
 
-        item.life-=dt;
+        if(shake < .1){
 
-        item.rotation+=
-            dt*3;
-
-
-        if(
-            item.life<=0
-        ){
-
-            item=null;
-
-            itemTimer=
-                5+
-                Math.random()*5;
-
+            shake = 0;
         }
-
     }
-
-
-    /*
-       Fire
-    */
-
-    if(ball.fire){
-
-        ball.fireTimer-=dt;
-
-
-        if(
-            ball.fireTimer<=0
-        ){
-
-            ball.fire=false;
-
-        }
-
-    }
-
-
-    /*
-       Ball
-    */
-
-    ball.x+=
-        ball.vx*
-        dt;
-
-    ball.y+=
-        ball.vy*
-        dt;
-
-
-    /*
-       Top wall
-    */
-
-    if(
-        ball.y-ball.r<
-        55
-    ){
-
-        ball.y=
-            55+
-            ball.r;
-
-        ball.vy=
-            Math.abs(
-                ball.vy
-            );
-
-        createParticles(
-            ball.x,
-            ball.y,
-            "#ffffff",
-            8
-        );
-
-    }
-
-
-    /*
-       Bottom wall
-    */
-
-    if(
-        ball.y+ball.r>
-        H-55
-    ){
-
-        ball.y=
-            H-55-
-            ball.r;
-
-        ball.vy=
-            -Math.abs(
-                ball.vy
-            );
-
-        createParticles(
-            ball.x,
-            ball.y,
-            "#ffffff",
-            8
-        );
-
-    }
-
-
-    /*
-       P1
-    */
-
-    if(
-
-        ball.vx<0 &&
-
-        ball.x-ball.r<
-        p1.x+p1.w &&
-
-        ball.x+ball.r>
-        p1.x &&
-
-        ball.y+ball.r>
-        p1.y &&
-
-        ball.y-ball.r<
-        p1.y+p1.h
-
-    ){
-
-        hitPaddle(p1);
-
-    }
-
-
-    /*
-       P2
-    */
-
-    if(
-
-        ball.vx>0 &&
-
-        ball.x+ball.r>
-        p2.x &&
-
-        ball.x-ball.r<
-        p2.x+p2.w &&
-
-        ball.y+ball.r>
-        p2.y &&
-
-        ball.y-ball.r<
-        p2.y+p2.h
-
-    ){
-
-        hitPaddle(p2);
-
-    }
-
-
-    checkItemCollision();
-
-
-    /*
-       P2 scores
-    */
-
-    if(
-        ball.x<
-        -50
-    ){
-
-        scorePoint(p2);
-
-    }
-
-
-    /*
-       P1 scores
-    */
-
-    if(
-        ball.x>
-        W+50
-    ){
-
-        scorePoint(p1);
-
-    }
-
-
-    /*
-       Particles
-    */
-
-    for(
-        let i=
-            particles.length-1;
-        i>=0;
-        i--
-    ){
-
-        const p=
-            particles[i];
-
-        p.life-=dt;
-
-        p.x+=
-            p.vx*
-            dt;
-
-        p.y+=
-            p.vy*
-            dt;
-
-        p.vx*=.97;
-
-        p.vy*=.97;
-
-
-        if(
-            p.life<=0
-        ){
-
-            particles.splice(
-                i,
-                1
-            );
-
-        }
-
-    }
-
-
-    /*
-       Message
-    */
-
-    if(
-        messageTimer>0
-    ){
-
-        messageTimer-=dt;
-
-
-        if(
-            messageTimer<=0
-        ){
-
-            message.classList.remove(
-                "show"
-            );
-
-        }
-
-    }
-
-
-    screenShake=
-        Math.max(
-            0,
-            screenShake-dt
-        );
-
 }
 
 
-/* =========================
-   DRAW PADDLE
-========================= */
+/* =========================================================
+   DRAW BACKGROUND
+   ========================================================= */
 
-function drawPaddle(player){
+function drawBackground(){
+
+    const gradient =
+        ctx.createLinearGradient(0,0,0,H);
+
+    gradient.addColorStop(0,"#050b19");
+    gradient.addColorStop(.5,"#071020");
+    gradient.addColorStop(1,"#030711");
+
+    ctx.fillStyle = gradient;
+
+    ctx.fillRect(0,0,W,H);
+
+
+    /* glow وسط */
+
+    const glow =
+        ctx.createRadialGradient(
+            W/2,H/2,20,
+            W/2,H/2,500
+        );
+
+    glow.addColorStop(
+        0,
+        "rgba(0,190,255,.07)"
+    );
+
+    glow.addColorStop(
+        1,
+        "rgba(0,0,0,0)"
+    );
+
+    ctx.fillStyle = glow;
+
+    ctx.fillRect(0,0,W,H);
+
+
+    /* خطوط زمین */
+
+    ctx.strokeStyle =
+        "rgba(0,220,255,.07)";
+
+    ctx.lineWidth = 1;
+
+    for(let x=0;x<=W;x+=60){
+
+        ctx.beginPath();
+
+        ctx.moveTo(x,0);
+        ctx.lineTo(x,H);
+
+        ctx.stroke();
+    }
+
+    for(let y=0;y<=H;y+=60){
+
+        ctx.beginPath();
+
+        ctx.moveTo(0,y);
+        ctx.lineTo(W,y);
+
+        ctx.stroke();
+    }
+
+
+    /* وسط */
+
+    ctx.setLineDash([12,16]);
+
+    ctx.strokeStyle =
+        "rgba(255,255,255,.13)";
+
+    ctx.lineWidth = 3;
+
+    ctx.beginPath();
+
+    ctx.moveTo(W/2,20);
+    ctx.lineTo(W/2,H-20);
+
+    ctx.stroke();
+
+    ctx.setLineDash([]);
+
+
+    ctx.beginPath();
+
+    ctx.arc(
+        W/2,
+        H/2,
+        100,
+        0,
+        Math.PI*2
+    );
+
+    ctx.strokeStyle =
+        "rgba(0,220,255,.10)";
+
+    ctx.stroke();
+}
+
+
+/* =========================================================
+   DRAW PADDLE
+   ========================================================= */
+
+function drawPaddle(p){
 
     ctx.save();
 
-    ctx.shadowBlur=25;
+    ctx.shadowColor = p.color;
+    ctx.shadowBlur = 25;
 
-    ctx.shadowColor=
-        player.color;
-
-
-    const gradient=
+    const gradient =
         ctx.createLinearGradient(
-            player.x,
-            player.y,
-            player.x+
-            player.w,
-            player.y
+            p.x,
+            p.y,
+            p.x+p.w,
+            p.y
         );
 
+    gradient.addColorStop(0,p.color);
+    gradient.addColorStop(.5,"#fff");
+    gradient.addColorStop(1,p.color);
 
-    gradient.addColorStop(
-        0,
-        player.color
-    );
-
-    gradient.addColorStop(
-        1,
-        "#ffffff"
-    );
-
-
-    ctx.fillStyle=
-        gradient;
-
+    ctx.fillStyle = gradient;
 
     ctx.beginPath();
 
     ctx.roundRect(
-        player.x,
-        player.y,
-        player.w,
-        player.h,
-        12
+        p.x,
+        p.y,
+        p.w,
+        p.h,
+        10
     );
 
     ctx.fill();
 
     ctx.restore();
-
 }
 
 
-/* =========================
-   DRAW ITEM
-========================= */
-
-function drawItem(){
-
-    if(!item){
-        return;
-    }
-
-    ctx.save();
-
-    ctx.translate(
-        item.x,
-        item.y
-    );
-
-    ctx.rotate(
-        item.rotation
-    );
-
-
-    ctx.shadowBlur=30;
-
-    ctx.shadowColor=
-        item.color;
-
-    ctx.strokeStyle=
-        item.color;
-
-    ctx.lineWidth=4;
-
-
-    ctx.beginPath();
-
-    ctx.arc(
-        0,
-        0,
-        item.radius,
-        0,
-        Math.PI*2
-    );
-
-    ctx.stroke();
-
-
-    ctx.fillStyle=
-        "#101828";
-
-
-    ctx.beginPath();
-
-    ctx.arc(
-        0,
-        0,
-        item.radius-5,
-        0,
-        Math.PI*2
-    );
-
-    ctx.fill();
-
-
-    ctx.rotate(
-        -item.rotation
-    );
-
-
-    ctx.font=
-        "26px Arial";
-
-    ctx.textAlign=
-        "center";
-
-    ctx.textBaseline=
-        "middle";
-
-
-    ctx.fillText(
-        item.icon,
-        0,
-        0
-    );
-
-
-    ctx.restore();
-
-}
-
-
-/* =========================
+/* =========================================================
    DRAW BALL
-========================= */
+   ========================================================= */
 
 function drawBall(){
 
-    if(ball.fire){
-
-        for(
-            let i=0;
-            i<10;
-            i++
-        ){
-
-            ctx.globalAlpha=
-                (10-i)/35;
-
-            ctx.fillStyle=
-                i%2===0
-                ?"#ff4b00"
-                :"#ffe600";
-
-
-            ctx.beginPath();
-
-            ctx.arc(
-                ball.x-
-                ball.vx*.002*i,
-                ball.y-
-                ball.vy*.002*i,
-                ball.r+
-                i*.7,
-                0,
-                Math.PI*2
-            );
-
-            ctx.fill();
-
-        }
-
-        ctx.globalAlpha=1;
-
-    }
-
-
     ctx.save();
 
-    ctx.shadowBlur=
+    const color =
         ball.fire
-        ?45
-        :25;
+        ? "#ff3b30"
+        : "#ffffff";
 
-    ctx.shadowColor=
-        ball.fire
-        ?"orange"
-        :"white";
+    ctx.shadowColor = color;
 
-
-    const gradient=
-        ctx.createRadialGradient(
-            ball.x-4,
-            ball.y-4,
-            2,
-            ball.x,
-            ball.y,
-            ball.r
-        );
+    ctx.shadowBlur =
+        ball.fire ? 45 : 28;
 
 
-    if(ball.fire){
+    /* trail */
 
-        gradient.addColorStop(
+    for(let i=1;i<=7;i++){
+
+        const tx =
+            ball.x -
+            ball.vx * .00008 * i;
+
+        const ty =
+            ball.y -
+            ball.vy * .00008 * i;
+
+        ctx.globalAlpha =
+            .08 * (8-i);
+
+        ctx.fillStyle = color;
+
+        ctx.beginPath();
+
+        ctx.arc(
+            tx,
+            ty,
+            ball.r * (1-i*.07),
             0,
-            "#ffffff"
+            Math.PI*2
         );
 
-        gradient.addColorStop(
-            .45,
-            "#ffe600"
-        );
-
-        gradient.addColorStop(
-            1,
-            "#ff4200"
-        );
-
-    }
-
-    else{
-
-        gradient.addColorStop(
-            0,
-            "#ffffff"
-        );
-
-        gradient.addColorStop(
-            1,
-            "#8deaff"
-        );
-
+        ctx.fill();
     }
 
 
-    ctx.fillStyle=
-        gradient;
+    ctx.globalAlpha = 1;
 
+    ctx.fillStyle = color;
 
     ctx.beginPath();
 
@@ -2178,253 +1735,83 @@ function drawBall(){
     ctx.fill();
 
     ctx.restore();
-
 }
 
 
-/* =========================
-   DRAW
-========================= */
+/* =========================================================
+   DRAW ITEM
+   ========================================================= */
 
-function draw(){
+function drawItem(){
 
-    ctx.clearRect(
-        0,
-        0,
-        W,
-        H
+    if(!item) return;
+
+    ctx.save();
+
+    ctx.translate(
+        item.x,
+        item.y
     );
 
-
-    const bg=
-        ctx.createRadialGradient(
-            W/2,
-            H/2,
-            50,
-            W/2,
-            H/2,
-            700
-        );
-
-
-    bg.addColorStop(
-        0,
-        "#101a35"
+    ctx.rotate(
+        item.rotation
     );
 
-    bg.addColorStop(
-        1,
-        "#03050c"
-    );
+    const color =
+        getItemColor(item.type);
 
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 25;
 
-    ctx.fillStyle=bg;
-
-    ctx.fillRect(
-        0,
-        0,
-        W,
-        H
-    );
-
-
-    /*
-       Background particles
-    */
-
-    ctx.globalAlpha=.35;
-
-
-    for(
-        let i=0;
-        i<25;
-        i++
-    ){
-
-        ctx.fillStyle=
-            "#ffffff";
-
-        ctx.beginPath();
-
-        ctx.arc(
-            (i*173)%W,
-            (i*97)%H,
-            1.2,
-            0,
-            Math.PI*2
-        );
-
-        ctx.fill();
-
-    }
-
-
-    ctx.globalAlpha=1;
-
-
-    /*
-       Arena
-    */
-
-    ctx.strokeStyle=
-        "#ffffff20";
-
-    ctx.lineWidth=3;
-
-
-    ctx.strokeRect(
-        30,
-        55,
-        W-60,
-        H-110
-    );
-
-
-    /*
-       Center line
-    */
-
-    ctx.setLineDash([
-        12,
-        18
-    ]);
-
-    ctx.strokeStyle=
-        "#ffffff18";
-
-    ctx.lineWidth=4;
-
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 4;
 
     ctx.beginPath();
 
-    ctx.moveTo(
-        W/2,
-        55
-    );
-
-    ctx.lineTo(
-        W/2,
-        H-55
+    ctx.roundRect(
+        -item.r,
+        -item.r,
+        item.r*2,
+        item.r*2,
+        10
     );
 
     ctx.stroke();
 
+    ctx.fillStyle = color;
 
-    ctx.setLineDash([]);
+    ctx.font = "bold 11px Tahoma";
 
-
-    /*
-       Score
-    */
-
-    ctx.textAlign="center";
-
-    ctx.font=
-        "900 46px Arial";
-
-
-    ctx.fillStyle=
-        p1.color;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
 
     ctx.fillText(
-        p1.score,
-        W/2-75,
-        42
+        item.type,
+        0,
+        0
     );
 
-
-    ctx.fillStyle=
-        "#ffffff55";
-
-    ctx.font=
-        "bold 22px Arial";
-
-    ctx.fillText(
-        ":",
-        W/2,
-        42
-    );
+    ctx.restore();
+}
 
 
-    ctx.fillStyle=
-        p2.color;
+/* =========================================================
+   DRAW PARTICLES
+   ========================================================= */
 
-    ctx.font=
-        "900 46px Arial";
+function drawParticles(){
 
-    ctx.fillText(
-        p2.score,
-        W/2+75,
-        42
-    );
+    for(const p of particles){
 
+        ctx.save();
 
-    /*
-       Hits
-    */
+        ctx.globalAlpha =
+            Math.max(0,p.life/p.maxLife);
 
-    ctx.font=
-        "bold 14px Tahoma";
+        ctx.fillStyle = p.color;
 
-    ctx.fillStyle=
-        "#ffffff99";
-
-
-    ctx.fillText(
-        "برخوردها: "+
-        totalHits,
-        W/2,
-        H-20
-    );
-
-
-    /*
-       Ball speed
-    */
-
-    ctx.font=
-        "bold 13px Tahoma";
-
-    ctx.fillStyle=
-        ball.fire
-        ?" #ff7b00"
-        :"#ffffff77";
-
-
-    ctx.fillText(
-        "سرعت توپ: "+
-        Math.round(ball.speed),
-        W/2,
-        72
-    );
-
-
-    drawItem();
-
-    drawBall();
-
-    drawPaddle(p1);
-
-    drawPaddle(p2);
-
-
-    /*
-       Particles
-    */
-
-    for(
-        const p of particles
-    ){
-
-        ctx.globalAlpha=
-            Math.max(
-                0,
-                p.life
-            );
-
-        ctx.fillStyle=
-            p.color;
-
+        ctx.shadowColor = p.color;
+        ctx.shadowBlur = 10;
 
         ctx.beginPath();
 
@@ -2438,116 +1825,291 @@ function draw(){
 
         ctx.fill();
 
+        ctx.restore();
     }
-
-
-    ctx.globalAlpha=1;
-
-
-    if(
-        screenShake>0
-    ){
-
-        ctx.fillStyle=
-            "#ffffff15";
-
-        ctx.fillRect(
-            0,
-            0,
-            W,
-            H
-        );
-
-    }
-
 }
 
 
-/* =========================
-   HOME
-========================= */
+/* =========================================================
+   DRAW SCORE
+   ========================================================= */
 
-homeButton.addEventListener(
-    "click",
-    ()=>{
+function drawScore(){
 
-        running=false;
+    ctx.save();
 
-        touchMove.p1=0;
-        touchMove.p2=0;
+    ctx.textAlign = "center";
 
-        menu.classList.remove(
-            "hidden"
+    ctx.font =
+        "900 82px Arial";
+
+    ctx.shadowBlur = 25;
+
+    ctx.shadowColor = "#00eaff";
+
+    ctx.fillStyle =
+        "rgba(0,234,255,.8)";
+
+    ctx.fillText(
+        score1,
+        W/2-120,
+        105
+    );
+
+
+    ctx.shadowColor = "#ff3bd4";
+
+    ctx.fillStyle =
+        "rgba(255,59,212,.8)";
+
+    ctx.fillText(
+        score2,
+        W/2+120,
+        105
+    );
+
+    ctx.restore();
+
+
+    ctx.font =
+        "bold 14px Tahoma";
+
+    ctx.fillStyle =
+        "rgba(255,255,255,.35)";
+
+    ctx.textAlign = "center";
+
+    ctx.fillText(
+        gameMode === "single"
+        ? "PLAYER 1   VS   BOT"
+        : "PLAYER 1   VS   PLAYER 2",
+        W/2,
+        145
+    );
+}
+
+
+/* =========================================================
+   DRAW MESSAGE
+   ========================================================= */
+
+function drawMessage(){
+
+    if(messageTimer <= 0) return;
+
+    ctx.save();
+
+    ctx.textAlign = "center";
+
+    ctx.font =
+        "bold 27px Tahoma";
+
+    ctx.shadowColor = "#00eaff";
+
+    ctx.shadowBlur = 20;
+
+    ctx.fillStyle = "#ffffff";
+
+    ctx.fillText(
+        message,
+        W/2,
+        H-55
+    );
+
+    ctx.restore();
+}
+
+
+/* =========================================================
+   GAME OVER
+   ========================================================= */
+
+function drawGameOver(){
+
+    if(!gameOver) return;
+
+    ctx.save();
+
+    ctx.fillStyle =
+        "rgba(0,0,0,.72)";
+
+    ctx.fillRect(
+        0,0,W,H
+    );
+
+
+    ctx.textAlign = "center";
+
+    ctx.shadowColor = "#00eaff";
+    ctx.shadowBlur = 35;
+
+    ctx.fillStyle = "#fff";
+
+    ctx.font =
+        "900 58px Tahoma";
+
+    ctx.fillText(
+        score1 >= 10
+        ? "بازیکن ۱ برنده شد!"
+        : "بازیکن ۲ برنده شد!",
+        W/2,
+        H/2-40
+    );
+
+
+    ctx.font =
+        "bold 24px Tahoma";
+
+    ctx.shadowBlur = 15;
+
+    ctx.fillText(
+        `${score1}  -  ${score2}`,
+        W/2,
+        H/2+20
+    );
+
+
+    ctx.font =
+        "16px Tahoma";
+
+    ctx.fillStyle =
+        "#9ca9c8";
+
+    ctx.fillText(
+        "برای برگشت به منو روی «بازگشت به خانه» بزنید",
+        W/2,
+        H/2+70
+    );
+
+    ctx.restore();
+}
+
+
+/* =========================================================
+   DRAW
+   ========================================================= */
+
+function draw(){
+
+    ctx.save();
+
+    if(shake > 0){
+
+        ctx.translate(
+            (Math.random()-.5)*shake,
+            (Math.random()-.5)*shake
         );
-
-        homeButton.style.display=
-            "none";
-
-        startButton.textContent=
-            "شروع بازی";
-
     }
-);
+
+    drawBackground();
+
+    drawScore();
+
+    drawItem();
+
+    drawPaddle(player1);
+
+    drawPaddle(player2);
+
+    drawBall();
+
+    drawParticles();
+
+    drawMessage();
+
+    drawGameOver();
+
+    ctx.restore();
+}
 
 
-/* =========================
-   START
-========================= */
-
-startButton.addEventListener(
-    "click",
-    ()=>{
-
-        resetGame();
-
-        menu.classList.add(
-            "hidden"
-        );
-
-        homeButton.style.display=
-            "block";
-
-        running=true;
-
-        showMessage(
-            "🎮 بازی شروع شد!"
-        );
-
-    }
-);
-
-
-/* =========================
+/* =========================================================
    LOOP
-========================= */
+   ========================================================= */
 
 function loop(time){
 
-    const dt=
-        Math.min(
-            (time-lastTime)/1000 ||
-            0,
-            .033
-        );
+    if(!gameRunning){
 
-    lastTime=time;
+        draw();
+
+        return;
+    }
+
+
+    let dt =
+        (time-lastTime)/1000;
+
+    lastTime = time;
+
+
+    /* جلوگیری از جهش بعد از هنگ */
+
+    dt =
+        Math.min(dt,.033);
+
 
     update(dt);
 
     draw();
 
-    requestAnimationFrame(
-        loop
-    );
-
+    requestAnimationFrame(loop);
 }
 
 
-resetGame();
+/* =========================================================
+   INITIAL DRAW
+   ========================================================= */
 
-requestAnimationFrame(
-    loop
+draw();
+
+
+/* =========================================================
+   RESIZE / PREVENT TOUCH SCROLL
+   ========================================================= */
+
+window.addEventListener(
+    "touchmove",
+    e => {
+        e.preventDefault();
+    },
+    {passive:false}
 );
+
+
+window.addEventListener(
+    "gesturestart",
+    e => {
+        e.preventDefault();
+    },
+    {passive:false}
+);
+
+
+/* آزاد کردن دکمه موبایل اگر انگشت از صفحه خارج شد */
+
+document.addEventListener("touchend", () => {
+
+    mobileUp = false;
+    mobileDown = false;
+
+    document
+        .querySelectorAll(".mobileBtn")
+        .forEach(btn => btn.classList.remove("pressed"));
+
+});
+
+
+document.addEventListener("pointerup", () => {
+
+    mobileUp = false;
+    mobileDown = false;
+
+    document
+        .querySelectorAll(".mobileBtn")
+        .forEach(btn => btn.classList.remove("pressed"));
+
+});
 
 </script>
 
